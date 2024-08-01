@@ -2,31 +2,49 @@ import React from "react";
 import { Image, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import PrimaryButton from "./Components/PrimaryButton";
 import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import LoginScreen from "./Components/LoginScreen";
 
 
-export default function HelloWorldApp() {
+const Stack = createNativeStackNavigator();
+
+function App() {
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="">
+        <Stack.Screen name="Login" component={LoginScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+export default App;
+
+
+function HomeScreen() {
+
   function print() {
     console.log("Pressed");
   }
 
   return (
-    <NavigationContainer>
+    <SafeAreaView style={styles.pageContainer}>
+      <View style={styles.textContainer}>
+        <Image style={styles.image} source={require("./Images/guard.png")}></Image>
+        <Text style={styles.textStyle}>Security Guard</Text>
+      </View>
+      <View style={styles.buttonsContainer}>
+        <PrimaryButton text="Login" onPress={print} />
+        <PrimaryButton text="SignUp" onPress={print} />
 
-      <SafeAreaView style={styles.pageContainer}>
-        <View style={styles.textContainer}>
-          <Image style={styles.image} source={require("./Images/guard.png")}></Image>
-          <Text style={styles.textStyle}>Security Guard</Text>
-        </View>
-        <View style={styles.buttonsContainer}>
-          <PrimaryButton text="Login" onPress={print} />
-          <PrimaryButton text="SignUp" onPress={print} />
-
-        </View>
-      </SafeAreaView>
-
-    </NavigationContainer>
+      </View>
+    </SafeAreaView>
   );
 }
+
+
+
 
 const styles = StyleSheet.create({
   pageContainer: {
