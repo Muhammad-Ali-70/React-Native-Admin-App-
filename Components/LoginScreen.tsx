@@ -5,16 +5,16 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 type RootStackParamList = {
-  Home: undefined;
-  Login: undefined;
-  SignUp: undefined;
-  GuardHome: undefined;
-};
+    Home: undefined;
+    Login: undefined;
+    GuardHome: undefined;
+  };
 
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 function LoginScreen({ navigation }: LoginScreenProps) {
-    function handleLogin() {
+
+    function handleChangeScreen() {
         navigation.navigate("GuardHome");
     }
 
@@ -33,7 +33,7 @@ function LoginScreen({ navigation }: LoginScreenProps) {
                 <TextInput style={styles.textInputfeild} secureTextEntry={true} placeholder="Password" />
             </View>
             <View style={styles.buttonContainer}>
-                <PrimaryButton onPress={handleLogin} text="Login" color="black" textcolor="white" />
+                <PrimaryButton onPress={handleChangeScreen} text="Login" color="black" textcolor="white" />
             </View>
         </SafeAreaView>
     );
@@ -55,6 +55,8 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         borderRadius: 6,
         marginBottom: 15,
+        borderBottomColor: "black",
+        borderBottomWidth: 1.5,
     },
     textInputfeild: {
         width: "90%",

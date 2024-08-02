@@ -5,11 +5,25 @@ import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerI
 import Icon from 'react-native-vector-icons/FontAwesome';
 // import AddGuard from './AddGuard';
 import PrimaryButton from "../Components/PrimaryButton";
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 const Drawer = createDrawerNavigator();
 
+type RootStackParamList = {
+    Login: undefined;
+    GuardHome: undefined;
+    AddGuard: undefined;
+  };
+  
+  type GuardHomePageProps = NativeStackScreenProps<RootStackParamList, 'GuardHome'>;
 
-const GuardHomePage = () => {
+
+const GuardHomePage = ({navigation}: GuardHomePageProps) => {
+
+    function handleChangeScreen() {
+        navigation.navigate("AddGuard");
+    }
+
     return (
         <Drawer.Navigator>
             <Drawer.Screen
@@ -17,12 +31,13 @@ const GuardHomePage = () => {
                 component={GuardPage}
                 options={{
                     headerStyle: {
-                        // backgroundColor: 'orange',
+                         backgroundColor: 'black',
                     },
-                    headerTintColor: 'black',
+                    headerTintColor: 'white',
+                    headerTitleAlign: "center",
                     headerRight: () => (
-                        <TouchableOpacity onPress={()=>{}}>
-                            <Icon name="plus-circle" size={30} color="black" style={{marginRight: 15}} />
+                        <TouchableOpacity onPress={handleChangeScreen}>
+                            <Icon name="plus-circle" size={30} color="white" style={{marginRight: 15}} />
                         </TouchableOpacity>
                     ),
                 }}

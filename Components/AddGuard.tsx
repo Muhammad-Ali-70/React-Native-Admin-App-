@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 
 
-function AddGuard({}) {
+function AddGuard() {
 
     function print() {
         console.log("Pressed");
