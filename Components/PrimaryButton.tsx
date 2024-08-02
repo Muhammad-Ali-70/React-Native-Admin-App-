@@ -4,21 +4,22 @@ import { TouchableOpacity, Text, StyleSheet, GestureResponderEvent } from "react
 interface PrimaryButtonProps {
   text: string;
   onPress: (event: GestureResponderEvent) => void;
+  color?: string; // Optional color prop
+  textcolor?: string // optional color prop
 }
 
-export default function PrimaryButton({ text, onPress }: PrimaryButtonProps) {
+export default function PrimaryButton({ text, onPress, color, textcolor }: PrimaryButtonProps) {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.button}>
-      <Text style={styles.buttonText}>{text}</Text>
+    <TouchableOpacity onPress={onPress} style={[styles.button, { backgroundColor: color || "lightgrey" }]}>
+      <Text style={[styles.buttonText, {color: textcolor || "black"}]}>{text}</Text>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: "lightgrey",
     padding: 12,
-    borderRadius: 5,
+    borderRadius: 6,
     alignItems: "center",
   },
   buttonText: {
