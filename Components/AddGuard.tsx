@@ -1,12 +1,10 @@
-import { View, Text, StyleSheet, SafeAreaView, TextInput, Alert, FlatList } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, SafeAreaView, TextInput, Alert } from 'react-native';
+import React, {useState } from 'react';
 import firestore from '@react-native-firebase/firestore';
 import PrimaryButton from './PrimaryButton';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-
 const AddGuard = () => {
-
     const [GuardName, SetguardName] = useState<any | null>(null);
     const [FatherName, SetFatherName] = useState<any | null>(null);
     const [CNIC, SetCNIC] = useState<any | null>(null);
@@ -14,30 +12,29 @@ const AddGuard = () => {
     const [Salary, SetSalary] = useState<any | null>(null);
     const [Phone, Setphone] = useState<any | null>(null);
 
-
-    const [GuardsData, SetGuardData] = useState<any[]>([]); // Initialize as an array
-
-
-    useEffect(() => {
-        GetDatabase();
-    }, []);
-
-
+    const [focusedField, setFocusedField] = useState<null | string>(null);
 
     const HandleAddData = async () => {
         try {
-            await firestore().
-                collection("Add_Guard_Collection").
-                add({
+            const snapshot = await firestore()
+                .collection("Add_Guard_Collection")
+                .where('GCNIC', '==', CNIC)
+                .get();
+
+            if (!snapshot.empty) {
+                Alert.alert("This CNIC is already registered.");
+                return;
+            }
+
+            await firestore()
+                .collection("Add_Guard_Collection")
+                .add({
                     GName: GuardName,
                     GFName: FatherName,
                     GCNIC: CNIC,
                     GAddress: Address,
                     GSalary: Salary,
                     GPhone: Phone,
-                }).
-                then(() => {
-                    console.log('User added!');
                 });
 
             Alert.alert("Guard Added to Firebase!");
@@ -49,85 +46,109 @@ const AddGuard = () => {
             SetSalary("");
             Setphone("");
 
-            console.log("NEW DATA ADDED!");
-            
-
-            GetDatabase(); // Refresh data
-
+            //GetDatabase();
         } catch (error) {
             console.log(error);
-
         }
     }
 
-
-    const GetDatabase = async () => {
-        try {
-            const snapshot = await firestore().collection('Add_Guard_Collection').get();
-            const gaurdsdata = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-
-            console.log(gaurdsdata);
-            SetGuardData(gaurdsdata);
-        } catch (error) {
-            console.log(error);
-        }
-    };
+    // const GetDatabase = async () => {
+    //     try {
+    //         const snapshot = await firestore().collection('Add_Guard_Collection').get();
+    //         const guardsdata = snapshot.docs.map(doc => ({
+    //             id: doc.id,
+    //             ...doc.data()
+    //         }));
+    //         //SetGuardData(guardsdata);
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // };
 
     return (
         <SafeAreaView style={styles.loginPageContainer}>
             <View style={styles.textInputContainer}>
-                <View style={styles.lockiconContainer}>
-                    <Icon name="user" size={30} color="black" style={styles.icon} />
+                <View style={styles.iconContainer}>
+                    <Icon name="user" size={30} color={focusedField === 'name' ? 'blue' : 'black'} style={styles.icon} />
                 </View>
-                <TextInput style={styles.textInputfeild} placeholder="Name" onChangeText={(value) => { SetguardName(value) }} value={GuardName}></TextInput>
-            </View>
-            <View style={styles.textInputContainer}>
-                <View style={styles.lockiconContainer}>
-                    <Icon name="user" size={30} color="black" style={styles.icon} />
-                </View>
-                <TextInput style={styles.textInputfeild} placeholder="Father Name" onChangeText={(value) => { SetFatherName(value) }} value={FatherName}></TextInput>
+                <TextInput
+                    style={styles.textInputfeild}
+                    placeholder="Name"
+                    onFocus={() => setFocusedField('name')}
+                    onBlur={() => setFocusedField(null)}
+                    onChangeText={(value) => { SetguardName(value) }} value={GuardName}
+                />
             </View>
 
             <View style={styles.textInputContainer}>
                 <View style={styles.iconContainer}>
-                    <Icon name="vcard" size={26} color="black" style={styles.icon} />
+                    <Icon name="user" size={30} color={focusedField === 'fathername' ? 'blue' : 'black'} style={styles.icon} />
                 </View>
-                <TextInput style={styles.textInputfeild} placeholder="CNIC" onChangeText={(value) => { SetCNIC(value) }} value={CNIC}></TextInput>
+                <TextInput
+                    style={styles.textInputfeild}
+                    placeholder="Father Name"
+                    onFocus={() => setFocusedField('fathername')}
+                    onBlur={() => setFocusedField(null)}
+                    onChangeText={(value) => { SetFatherName(value) }} value={FatherName}
+                />
             </View>
-
 
             <View style={styles.textInputContainer}>
                 <View style={styles.iconContainer}>
-                    <Icon name="home" size={30} color="black" style={styles.icon} />
+                    <Icon name="vcard" size={26} color={focusedField === 'vcard' ? 'blue' : 'black'} style={styles.icon} />
                 </View>
-                <TextInput style={styles.textInputfeild} placeholder="Address" onChangeText={(value) => { SetAddress(value) }} value={Address}></TextInput>
+                <TextInput
+                    style={styles.textInputfeild}
+                    placeholder="CNIC"
+                    onFocus={() => setFocusedField('vcard')}
+                    onBlur={() => setFocusedField(null)}
+                    onChangeText={(value) => { SetCNIC(value) }} value={CNIC}
+                />
             </View>
 
             <View style={styles.textInputContainer}>
-                <View style={styles.lockiconContainer}>
-                    <Icon name="dollar" size={31} color="black" style={styles.icon} />
+                <View style={styles.iconContainer}>
+                    <Icon name="home" size={30} color={focusedField === 'address' ? 'blue' : 'black'} style={styles.icon} />
                 </View>
-                <TextInput style={styles.textInputfeild} placeholder="Salary (PKR)" onChangeText={(value) => { SetSalary(value) }} value={Salary}></TextInput>
+                <TextInput
+                    style={styles.textInputfeild}
+                    placeholder="Address"
+                    onFocus={() => setFocusedField('address')}
+                    onBlur={() => setFocusedField(null)}
+                    onChangeText={(value) => { SetAddress(value) }} value={Address}
+                />
             </View>
 
             <View style={styles.textInputContainer}>
-                <View style={styles.lockiconContainer}>
-                    <Icon name="phone" size={25} color="black" style={styles.icon} />
+                <View style={styles.iconContainer}>
+                    <Icon name="dollar" size={26} color={focusedField === 'salary' ? 'blue' : 'black'} style={styles.icon} />
                 </View>
-                <TextInput style={styles.textInputfeild} placeholder="Phone" onChangeText={(value) => { Setphone(value) }} value={Phone}></TextInput>
+                <TextInput
+                    style={styles.textInputfeild}
+                    placeholder="Salary (PKR)"
+                    onFocus={() => setFocusedField('salary')}
+                    onBlur={() => setFocusedField(null)}
+                    onChangeText={(value) => { SetSalary(value) }} value={Salary}
+                />
+            </View>
+
+            <View style={styles.textInputContainer}>
+                <View style={styles.iconContainer}>
+                    <Icon name="phone" size={26} color={focusedField === 'phone' ? 'blue' : 'black'} style={styles.icon} />
+                </View>
+                <TextInput
+                    style={styles.textInputfeild}
+                    placeholder="Phone No."
+                    onFocus={() => setFocusedField('phone')}
+                    onBlur={() => setFocusedField(null)}
+                    onChangeText={(value) => { Setphone(value) }} value={Phone}
+                />
             </View>
 
             <View style={styles.buttonContainer}>
-                <PrimaryButton onPress={HandleAddData} text="Sign Up" color="black" textcolor="white" ></PrimaryButton>
+                <PrimaryButton onPress={HandleAddData} text="Add Guard" color="black" textcolor="white" />
             </View>
-            
         </SafeAreaView>
-
-
-
     );
 };
 
@@ -137,8 +158,6 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         paddingHorizontal: 40,
-        // backgroundColor: "lightblue"
-
     },
     textInputContainer: {
         backgroundColor: "lightgrey",
@@ -147,40 +166,26 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         borderRadius: 6,
         marginBottom: 15,
+        borderBottomWidth: 1.5,
+        borderBottomColor: "black",
     },
     textInputfeild: {
-        width: "90%",
+        flex: 1,
         paddingHorizontal: 10,
         paddingVertical: 7,
         fontSize: 16,
         color: "black",
     },
-    icon: {
-        borderRightColor: "black",
-        borderRightWidth: 2,
-        paddingRight: 15,
-        marginLeft: 10,
-    },
     iconContainer: {
-        marginLeft: 2,
-        padding: 5,
-        alignContent: "center",
+        width: 50,
         justifyContent: "center",
-
+        alignItems: "center",
     },
-    lockiconContainer: {
-        padding: 8,
-        alignContent: "center",
-        justifyContent: "center",
-        marginLeft: 6,
-
-    },
+    icon: {},
     buttonContainer: {
         marginTop: 30,
-        width: "100%"
+        width: "100%",
     },
-    
-
-
 });
+
 export default AddGuard;

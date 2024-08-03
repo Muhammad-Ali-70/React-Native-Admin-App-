@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { SafeAreaView, StyleSheet, TextInput, View } from "react-native";
 import PrimaryButton from "./PrimaryButton";
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -13,6 +13,9 @@ type RootStackParamList = {
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 function LoginScreen({ navigation }: LoginScreenProps) {
+    
+    const [focusedField, setFocusedField] = useState<null | string>(null);
+
 
     function handleChangeScreen() {
         navigation.navigate("GuardHome");
@@ -20,17 +23,29 @@ function LoginScreen({ navigation }: LoginScreenProps) {
 
     return (
         <SafeAreaView style={styles.loginPageContainer}>
+             <View style={styles.textInputContainer}>
+                <View style={styles.iconContainer}>
+                    <Icon name="envelope" size={26} color={focusedField === 'email' ? 'blue' : 'black'} style={styles.icon} />
+                </View>
+                <TextInput 
+                    style={styles.textInputfeild} 
+                    placeholder="Email" 
+                    onFocus={() => setFocusedField('email')}
+                    onBlur={() => setFocusedField(null)}
+                />
+            </View>
+
             <View style={styles.textInputContainer}>
                 <View style={styles.iconContainer}>
-                    <Icon name="envelope" size={28} color="black" style={styles.icon} />
+                    <Icon name="lock" size={30} color={focusedField === 'pass' ? 'blue' : 'black'} style={styles.icon} />
                 </View>
-                <TextInput style={styles.textInputfeild} placeholder="Email" />
-            </View>
-            <View style={styles.textInputContainer}>
-                <View style={styles.lockiconContainer}>
-                    <Icon name="lock" size={30} color="black" style={styles.icon} />
-                </View>
-                <TextInput style={styles.textInputfeild} secureTextEntry={true} placeholder="Password" />
+                <TextInput 
+                    style={styles.textInputfeild} 
+                    placeholder="Password" 
+                    secureTextEntry={true}
+                    onFocus={() => setFocusedField('pass')}
+                    onBlur={() => setFocusedField(null)}
+                />
             </View>
             <View style={styles.buttonContainer}>
                 <PrimaryButton onPress={handleChangeScreen} text="Login" color="black" textcolor="white" />
@@ -55,33 +70,25 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         borderRadius: 6,
         marginBottom: 15,
-        borderBottomColor: "black",
         borderBottomWidth: 1.5,
+        borderBottomColor: "black",
     },
     textInputfeild: {
-        width: "90%",
+        flex: 1,
         paddingHorizontal: 10,
         paddingVertical: 7,
-        fontSize: 18,
+        fontSize: 16,
         color: "black",
-        fontWeight: "bold",
-    },
-    icon: {
-        borderRightColor: "black",
-        borderRightWidth: 2,    
-        paddingRight: 15, 
-        marginLeft: 10,
     },
     iconContainer: {
-        padding: 5,
-        alignContent: "center",
+        width: 50,
         justifyContent: "center",
+        alignItems: "center",
+        // borderRightColor: "black",
+        // borderRightWidth: 2,
     },
-    lockiconContainer: {
-        padding: 8,
-        alignContent: "center",
-        justifyContent: "center",
-        marginLeft: 6,
+    icon: {
+        //paddingRight: 15,
     },
     buttonContainer: {
         marginTop: 30,

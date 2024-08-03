@@ -1,62 +1,52 @@
-import React from "react";
-import { Image, SafeAreaView, StyleSheet, Text, TextInput, View } from "react-native";
+import React, { useState } from "react";
+import { SafeAreaView, StyleSheet, TextInput, View } from "react-native";
 import PrimaryButton from "../Components/PrimaryButton";
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-
-
-function SignUpScreen({}) {
-
-    function print() {
-        console.log("Pressed");
-    }
+function SignUpScreen() {
+    const [focusedField, setFocusedField] = useState<null | string>(null);
 
     return (
         <SafeAreaView style={styles.loginPageContainer}>
             <View style={styles.textInputContainer}>
-                <View style={styles.lockiconContainer}>
-                    <Icon name="user" size={30} color="black" style={styles.icon} />
+                <View style={styles.iconContainer}>
+                    <Icon name="user" size={30} color={focusedField === 'name' ? 'blue' : 'black'} style={styles.icon} />
                 </View>
-                <TextInput style={styles.textInputfeild} placeholder="First Name"></TextInput>
-            </View>
-            <View style={styles.textInputContainer}>
-                <View style={styles.lockiconContainer}>
-                    <Icon name="user" size={30} color="black" style={styles.icon} />
-                </View>
-                <TextInput style={styles.textInputfeild} placeholder="Last Name"></TextInput>
+                <TextInput 
+                    style={styles.textInputfeild} 
+                    placeholder="Name" 
+                    onFocus={() => setFocusedField('name')}
+                    onBlur={() => setFocusedField(null)}
+                />
             </View>
 
             <View style={styles.textInputContainer}>
                 <View style={styles.iconContainer}>
-                    <Icon name="vcard" size={26} color="black" style={styles.icon} />
+                    <Icon name="envelope" size={26} color={focusedField === 'email' ? 'blue' : 'black'} style={styles.icon} />
                 </View>
-                <TextInput style={styles.textInputfeild} placeholder="CNIC (XXXXX-XXXXXX-X)"></TextInput>
+                <TextInput 
+                    style={styles.textInputfeild} 
+                    placeholder="Email" 
+                    onFocus={() => setFocusedField('email')}
+                    onBlur={() => setFocusedField(null)}
+                />
             </View>
-
 
             <View style={styles.textInputContainer}>
                 <View style={styles.iconContainer}>
-                    <Icon name="envelope" size={28} color="black" style={styles.icon} />
+                    <Icon name="lock" size={30} color={focusedField === 'pass' ? 'blue' : 'black'} style={styles.icon} />
                 </View>
-                <TextInput style={styles.textInputfeild} placeholder="Email "></TextInput>
-            </View>
-
-            <View style={styles.textInputContainer}>
-                <View style={styles.lockiconContainer}>
-                    <Icon name="lock" size={30} color="black" style={styles.icon} />
-                </View>
-                <TextInput style={styles.textInputfeild} secureTextEntry={true} placeholder="Password"></TextInput>
-            </View>
-
-            <View style={styles.textInputContainer}>
-                <View style={styles.lockiconContainer}>
-                    <Icon name="lock" size={30} color="black" style={styles.icon} />
-                </View>
-                <TextInput style={styles.textInputfeild} secureTextEntry={true} placeholder="Confirm Password"></TextInput>
+                <TextInput 
+                    style={styles.textInputfeild} 
+                    placeholder="Password" 
+                    secureTextEntry={true}
+                    onFocus={() => setFocusedField('pass')}
+                    onBlur={() => setFocusedField(null)}
+                />
             </View>
 
             <View style={styles.buttonContainer}>
-                <PrimaryButton onPress={()=>{}} text="Sign Up" color="black" textcolor="white" ></PrimaryButton>
+                <PrimaryButton onPress={()=>{}} text="Sign Up" color="black" textcolor="white" />
             </View>
         </SafeAreaView>
     );
@@ -70,8 +60,6 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         paddingHorizontal: 40,
-        // backgroundColor: "lightblue"
-
     },
     textInputContainer: {
         backgroundColor: "lightgrey",
@@ -80,38 +68,28 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         borderRadius: 6,
         marginBottom: 15,
+        borderBottomWidth: 1.5,
+        borderBottomColor: "black",
     },
     textInputfeild: {
-        width: "90%",
+        flex: 1,
         paddingHorizontal: 10,
         paddingVertical: 7,
         fontSize: 16,
         color: "black",
     },
-    icon: {
-        borderRightColor: "black",
-        borderRightWidth: 2,
-        paddingRight: 15,
-        marginLeft: 10,
-    },
     iconContainer: {
-        marginLeft: 2,
-        padding: 5,
-        alignContent: "center",
+        width: 50,
         justifyContent: "center",
-
+        alignItems: "center",
+        // borderRightColor: "black",
+        // borderRightWidth: 2,
     },
-    lockiconContainer: {
-        padding: 8,
-        alignContent: "center",
-        justifyContent: "center",
-        marginLeft: 6,
-
+    icon: {
+        //paddingRight: 15,
     },
     buttonContainer: {
         marginTop: 30,
-        width: "100%"
-    }
-
-
+        width: "100%",
+    },
 });
