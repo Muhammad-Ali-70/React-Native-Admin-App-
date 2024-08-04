@@ -3,8 +3,19 @@ import React, { useState } from 'react';
 import firestore from '@react-native-firebase/firestore';
 import PrimaryButton from './PrimaryButton';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-const AddGuard = () => {
+
+type RootStackParamList = {
+    GuardDrawer: undefined;
+    AddGuard: undefined;
+};
+
+
+type AddGuardPageProps = NativeStackScreenProps<RootStackParamList, 'AddGuard'>;
+
+
+const AddGuard = ({ navigation }: AddGuardPageProps) => {
     const [GuardName, SetguardName] = useState<any | null>(null);
     const [FatherName, SetFatherName] = useState<any | null>(null);
     const [CNIC, SetCNIC] = useState<any | null>(null);
@@ -45,6 +56,10 @@ const AddGuard = () => {
             SetAddress("");
             SetSalary("");
             Setphone("");
+
+            navigation.navigate("GuardDrawer");
+
+
 
             //GetDatabase();
         } catch (error) {

@@ -7,7 +7,8 @@ import auth from '@react-native-firebase/auth';
 
 export type RootStackParamList = {
     Login: undefined;
-    GuardDrawer: { userEmail: string };
+    GuardDrawer: undefined;
+    //GuardDrawer: { userEmail: string };
     AddGuard: undefined;
 };
 
@@ -23,7 +24,8 @@ function LoginScreen({ navigation }: LoginScreenProps) {
             try {
                 await auth().signInWithEmailAndPassword(email, password);
                 Alert.alert("User Logged In");
-                navigation.navigate("GuardDrawer", { userEmail: email });
+                navigation.navigate("GuardDrawer");
+                // navigation.navigate("GuardDrawer", { userEmail: email });
             } catch (error: any) {
                 if (error.code === 'auth/email-already-in-use') {
                     Alert.alert("Email Already in Use", "That email address is already in use!");
@@ -31,10 +33,13 @@ function LoginScreen({ navigation }: LoginScreenProps) {
                     Alert.alert("Invalid Email", "That email address is invalid!");
                 } else if (error.code === 'auth/weak-password') {
                     Alert.alert("Weak Password", "Password should be at least 6 characters");
-                } else {
-                    Alert.alert("Error", "An unknown error occurred");
+                } else if (error.code === 'auth/invalid-credential') {
+                    Alert.alert("Error", "Invalid Credentials");
                 }
-                console.error(error);
+                else {
+                    Alert.alert("Error", "Something went Wrong. Try Again!")
+                }
+                //console.error(error);
             }
         } else {
             Alert.alert("Enter Email & Password First");

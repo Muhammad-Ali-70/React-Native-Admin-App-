@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import GuardPage from './GuardHomeScreen';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import CustomerHomeScreen from './CustomerHomeScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -11,25 +12,49 @@ type RootStackParamList = {
   Login: undefined;
   GuardDrawer: undefined;
   AddGuard: undefined;
+  GuardPage: undefined;
 };
 
 
 type GuardDrawerPageProps = NativeStackScreenProps<RootStackParamList, 'GuardDrawer'>;
 
-const GuardDrawer = ({ route, navigation }: GuardDrawerPageProps) => {
-  const { userEmail } = route.params;
+const GuardDrawer = ({ navigation }: GuardDrawerPageProps) => {
 
-  const handleChangeScreen = () => {
+  const handleAddGuard = () => {
     navigation.navigate("AddGuard");
   }
 
+  const handleAddCustomer = () => {
+    //navigation.navigate("AddGuard");
+
+  }
   return (
     <Drawer.Navigator>
+
       <Drawer.Screen
-        name="Guard"
+        name="GuardPage"
         component={GuardPage}
         options={{
-          headerTitle: `Welcome, ${userEmail}`,
+          // headerTitle: `Welcome, ${userEmail}`,
+          headerTitle: "Guards",
+          headerTitleStyle: { fontSize: 18 },
+          headerStyle: {
+            backgroundColor: 'black',
+          },
+          headerTintColor: 'white',
+          headerTitleAlign: "center",
+          headerRight: () => (
+            <TouchableOpacity onPress={handleAddGuard}>
+              <Icon name="plus-circle" size={30} color="white" style={{ marginRight: 15 }} />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Customers"
+        component={CustomerHomeScreen}
+        options={{
+          headerTitle: "Customers",
           headerTitleStyle: { fontSize: 18 },
           headerStyle: {
             backgroundColor: 'black',
@@ -38,15 +63,14 @@ const GuardDrawer = ({ route, navigation }: GuardDrawerPageProps) => {
           headerTintColor: 'white',
           headerTitleAlign: "center",
           headerRight: () => (
-            <TouchableOpacity onPress={handleChangeScreen}>
+            <TouchableOpacity onPress={handleAddCustomer}>
               <Icon name="plus-circle" size={30} color="white" style={{ marginRight: 15 }} />
             </TouchableOpacity>
           ),
         }}
       />
-      <Drawer.Screen name="Customer" component={GuardPage} />
-      <Drawer.Screen name="Salaries" component={GuardPage} />
-      <Drawer.Screen name="Collection" component={GuardPage} />
+      {/* <Drawer.Screen name="Salaries" component={GuardPage} />
+      <Drawer.Screen name="Collection" component={GuardPage} /> */}
     </Drawer.Navigator>
   );
 };

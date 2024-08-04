@@ -1,29 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-function GuardPage() {
+type RootStackParamList = {
+  Login: undefined;
+  GuardDrawer: undefined;
+  AddGuard: undefined;
+  GuardPage: undefined;
+  GuardDetails: { guardId: string };//////////////////////////////////////////////////////////////////////////
+};
+
+type GuardHomeScreenProps = NativeStackScreenProps<RootStackParamList, 'GuardPage'>;
+
+function GuardPage({ navigation }: GuardHomeScreenProps) {
+
   const [GuardsData, SetGuardData] = useState<any[]>([]); // Initialize as an array
 
   useEffect(() => {
+    const subscriber = firestore()
+      .collection('Add_Guard_Collection')
+      .orderBy("GName", "asc")
+      .onSnapshot(querySnapshot => {
+        const guardsData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
 
-    const subscriber = firestore().collection('Add_Guard_Collection').orderBy("GName", "asc").onSnapshot(querySnapshot => {
-      const guardsData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-
-
-      //console.log(guardsData);
-      SetGuardData(guardsData);
-    }, error => {
-      console.log(error);
-    });
+        SetGuardData(guardsData);
+      }, error => {
+        console.log(error);
+      });
 
     // Unsubscribe from events when no longer in use
     return () => subscriber();
   }, []);
 
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  const handleGuardDetails = (guardId: string) => {
+    navigation.navigate('GuardDetails', { guardId });
+  };
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   return (
     <View style={styles.mainContainer}>
@@ -31,10 +50,12 @@ function GuardPage() {
         data={GuardsData}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.listcontainer}>
-            <Text style={styles.cardText}>Name: {item ? item.GName : "Loading"}</Text>
-            <Text style={styles.cardTextFather}>Father Name: {item ? item.GFName : "Loading"}</Text>
-          </View>
+          <TouchableOpacity onPress={() => handleGuardDetails(item.id)}>//////////////////////////////////////////
+            <View style={styles.listcontainer}>
+              <Text style={styles.cardText}>Name: {item ? item.GName : "Loading"}</Text>
+              <Text style={styles.cardTextFather}>Father Name: {item ? item.GFName : "Loading"}</Text>
+            </View>
+          </TouchableOpacity>
         )}
       />
     </View>
