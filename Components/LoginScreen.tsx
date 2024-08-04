@@ -1,37 +1,59 @@
 import React, { useState } from "react";
-import { SafeAreaView, StyleSheet, TextInput, View } from "react-native";
+import { SafeAreaView, StyleSheet, TextInput, View, Alert } from "react-native";
 import PrimaryButton from "./PrimaryButton";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import auth from '@react-native-firebase/auth';
 
-type RootStackParamList = {
-    Home: undefined;
+export type RootStackParamList = {
     Login: undefined;
-    GuardHome: undefined;
-  };
+    GuardDrawer: { userEmail: string };
+    AddGuard: undefined;
+};
 
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 function LoginScreen({ navigation }: LoginScreenProps) {
-    
-    const [focusedField, setFocusedField] = useState<null | string>(null);
+    const [focusedField, setFocusedField] = useState<string | null>(null);
+    const [email, setEmail] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
 
-
-    function handleChangeScreen() {
-        navigation.navigate("GuardHome");
-    }
+    const handleSignIn = async () => {
+        if (email && password) {
+            try {
+                await auth().signInWithEmailAndPassword(email, password);
+                Alert.alert("User Logged In");
+                navigation.navigate("GuardDrawer", { userEmail: email });
+            } catch (error: any) {
+                if (error.code === 'auth/email-already-in-use') {
+                    Alert.alert("Email Already in Use", "That email address is already in use!");
+                } else if (error.code === 'auth/invalid-email') {
+                    Alert.alert("Invalid Email", "That email address is invalid!");
+                } else if (error.code === 'auth/weak-password') {
+                    Alert.alert("Weak Password", "Password should be at least 6 characters");
+                } else {
+                    Alert.alert("Error", "An unknown error occurred");
+                }
+                console.error(error);
+            }
+        } else {
+            Alert.alert("Enter Email & Password First");
+        }
+    };
 
     return (
         <SafeAreaView style={styles.loginPageContainer}>
-             <View style={styles.textInputContainer}>
+            <View style={styles.textInputContainer}>
                 <View style={styles.iconContainer}>
                     <Icon name="envelope" size={26} color={focusedField === 'email' ? 'blue' : 'black'} style={styles.icon} />
                 </View>
-                <TextInput 
-                    style={styles.textInputfeild} 
-                    placeholder="Email" 
+                <TextInput
+                    style={styles.textInputfeild}
+                    placeholder="Email"
                     onFocus={() => setFocusedField('email')}
                     onBlur={() => setFocusedField(null)}
+                    onChangeText={setEmail}
+                    value={email}
                 />
             </View>
 
@@ -39,16 +61,18 @@ function LoginScreen({ navigation }: LoginScreenProps) {
                 <View style={styles.iconContainer}>
                     <Icon name="lock" size={30} color={focusedField === 'pass' ? 'blue' : 'black'} style={styles.icon} />
                 </View>
-                <TextInput 
-                    style={styles.textInputfeild} 
-                    placeholder="Password" 
+                <TextInput
+                    style={styles.textInputfeild}
+                    placeholder="Password"
                     secureTextEntry={true}
                     onFocus={() => setFocusedField('pass')}
                     onBlur={() => setFocusedField(null)}
+                    onChangeText={setPassword}
+                    value={password}
                 />
             </View>
             <View style={styles.buttonContainer}>
-                <PrimaryButton onPress={handleChangeScreen} text="Login" color="black" textcolor="white" />
+                <PrimaryButton onPress={handleSignIn} text="Login" color="black" textcolor="white" />
             </View>
         </SafeAreaView>
     );
@@ -84,12 +108,8 @@ const styles = StyleSheet.create({
         width: 50,
         justifyContent: "center",
         alignItems: "center",
-        // borderRightColor: "black",
-        // borderRightWidth: 2,
     },
-    icon: {
-        //paddingRight: 15,
-    },
+    icon: {},
     buttonContainer: {
         marginTop: 30,
         width: "100%",

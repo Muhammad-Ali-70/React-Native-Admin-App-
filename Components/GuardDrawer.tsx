@@ -1,24 +1,25 @@
-import {TouchableOpacity,} from 'react-native';
 import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import GuardPage from './GuardHomeScreen';
-
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const Drawer = createDrawerNavigator();
 
 type RootStackParamList = {
   Login: undefined;
-  GuardHome: undefined;
+  GuardDrawer: undefined;
   AddGuard: undefined;
 };
 
-type GuardHomePageProps = NativeStackScreenProps<RootStackParamList, 'GuardHome'>;
 
-const GuardHomePage = ({ navigation }: GuardHomePageProps) => {
-  
-  function handleChangeScreen() {
+type GuardDrawerPageProps = NativeStackScreenProps<RootStackParamList, 'GuardDrawer'>;
+
+const GuardDrawer = ({ route, navigation }: GuardDrawerPageProps) => {
+  const { userEmail } = route.params;
+
+  const handleChangeScreen = () => {
     navigation.navigate("AddGuard");
   }
 
@@ -28,8 +29,11 @@ const GuardHomePage = ({ navigation }: GuardHomePageProps) => {
         name="Guard"
         component={GuardPage}
         options={{
+          headerTitle: `Welcome, ${userEmail}`,
+          headerTitleStyle: { fontSize: 18 },
           headerStyle: {
             backgroundColor: 'black',
+
           },
           headerTintColor: 'white',
           headerTitleAlign: "center",
@@ -47,6 +51,5 @@ const GuardHomePage = ({ navigation }: GuardHomePageProps) => {
   );
 };
 
-export default GuardHomePage;
-
+export default GuardDrawer;
 

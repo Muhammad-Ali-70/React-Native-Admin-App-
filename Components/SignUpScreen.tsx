@@ -1,10 +1,55 @@
 import React, { useState } from "react";
-import { SafeAreaView, StyleSheet, TextInput, View } from "react-native";
+import { SafeAreaView, StyleSheet, TextInput, View, Alert } from "react-native";
 import PrimaryButton from "../Components/PrimaryButton";
 import Icon from 'react-native-vector-icons/FontAwesome';
+import auth from '@react-native-firebase/auth';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-function SignUpScreen() {
+type RootStackParamList = {
+    SignUp: undefined;
+    Login: undefined;
+};
+
+type SignUpScreenProps = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
+
+
+function SignUpScreen({ navigation }: SignUpScreenProps) {
     const [focusedField, setFocusedField] = useState<null | string>(null);
+
+    const [Email, SetEmail] = useState<any | null>(null);
+    const [Password, SetPassword] = useState<any | null>(null);
+
+    const handleSignup = async () => {
+
+        if (Email != null && Password != null) {
+            const UserAuthen = await auth().createUserWithEmailAndPassword(Email, Password).then(() => {
+                Alert.alert("User Account created !")
+
+                // passing parameters to the next screen
+                navigation.navigate("Login");
+
+
+            })
+                .catch(error => {
+                    if (error.code === 'auth/email-already-in-use') {
+                        Alert.alert("Email Already in-Use", "That email address is already in use!")
+                    }
+
+                    if (error.code === 'auth/invalid-email') {
+                        Alert.alert("Invalid Email", "That email address is invalid!")
+                    }
+
+                    if (error.code === 'auth/weak-password') {
+                        Alert.alert("Weak Password", "Password should be at least 6 characters")
+                    }
+                    console.error(error);
+                });
+        }
+        else {
+            Alert.alert("Enter Email & Password First")
+        }
+    }
+
 
     return (
         <SafeAreaView style={styles.loginPageContainer}>
@@ -12,11 +57,12 @@ function SignUpScreen() {
                 <View style={styles.iconContainer}>
                     <Icon name="user" size={30} color={focusedField === 'name' ? 'blue' : 'black'} style={styles.icon} />
                 </View>
-                <TextInput 
-                    style={styles.textInputfeild} 
-                    placeholder="Name" 
+                <TextInput
+                    style={styles.textInputfeild}
+                    placeholder="Name"
                     onFocus={() => setFocusedField('name')}
                     onBlur={() => setFocusedField(null)}
+
                 />
             </View>
 
@@ -24,11 +70,13 @@ function SignUpScreen() {
                 <View style={styles.iconContainer}>
                     <Icon name="envelope" size={26} color={focusedField === 'email' ? 'blue' : 'black'} style={styles.icon} />
                 </View>
-                <TextInput 
-                    style={styles.textInputfeild} 
-                    placeholder="Email" 
+                <TextInput
+                    style={styles.textInputfeild}
+                    placeholder="Email"
                     onFocus={() => setFocusedField('email')}
                     onBlur={() => setFocusedField(null)}
+                    onChangeText={(value) => { SetEmail(value) }}
+                    value={Email}
                 />
             </View>
 
@@ -36,17 +84,19 @@ function SignUpScreen() {
                 <View style={styles.iconContainer}>
                     <Icon name="lock" size={30} color={focusedField === 'pass' ? 'blue' : 'black'} style={styles.icon} />
                 </View>
-                <TextInput 
-                    style={styles.textInputfeild} 
-                    placeholder="Password" 
+                <TextInput
+                    style={styles.textInputfeild}
+                    placeholder="Password"
                     secureTextEntry={true}
                     onFocus={() => setFocusedField('pass')}
                     onBlur={() => setFocusedField(null)}
+                    onChangeText={(value) => { SetPassword(value) }}
+                    value={Password}
                 />
             </View>
 
             <View style={styles.buttonContainer}>
-                <PrimaryButton onPress={()=>{}} text="Sign Up" color="black" textcolor="white" />
+                <PrimaryButton onPress={handleSignup} text="Sign Up" color="black" textcolor="white" />
             </View>
         </SafeAreaView>
     );

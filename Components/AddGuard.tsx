@@ -1,5 +1,5 @@
 import { View, StyleSheet, SafeAreaView, TextInput, Alert } from 'react-native';
-import React, {useState } from 'react';
+import React, { useState } from 'react';
 import firestore from '@react-native-firebase/firestore';
 import PrimaryButton from './PrimaryButton';
 import Icon from 'react-native-vector-icons/FontAwesome';
