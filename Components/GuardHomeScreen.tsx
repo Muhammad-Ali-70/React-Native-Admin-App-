@@ -8,7 +8,7 @@ type RootStackParamList = {
   GuardDrawer: undefined;
   AddGuard: undefined;
   GuardPage: undefined;
-  GuardDetails: { guardId: string };//////////////////////////////////////////////////////////////////////////
+  GuardDetails: { guardId: string };
 };
 
 type GuardHomeScreenProps = NativeStackScreenProps<RootStackParamList, 'GuardPage'>;
@@ -37,12 +37,9 @@ function GuardPage({ navigation }: GuardHomeScreenProps) {
   }, []);
 
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   const handleGuardDetails = (guardId: string) => {
-    navigation.navigate('GuardDetails', { guardId });
-  };
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    navigation.navigate("GuardDetails", { guardId })
+  }
 
   return (
     <View style={styles.mainContainer}>
@@ -50,7 +47,7 @@ function GuardPage({ navigation }: GuardHomeScreenProps) {
         data={GuardsData}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleGuardDetails(item.id)}>//////////////////////////////////////////
+          <TouchableOpacity onPress={() => { handleGuardDetails(item.id) }}>
             <View style={styles.listcontainer}>
               <Text style={styles.cardText}>Name: {item ? item.GName : "Loading"}</Text>
               <Text style={styles.cardTextFather}>Father Name: {item ? item.GFName : "Loading"}</Text>
