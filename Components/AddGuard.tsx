@@ -16,6 +16,7 @@ type AddGuardPageProps = NativeStackScreenProps<RootStackParamList, 'AddGuard'>;
 
 
 const AddGuard = ({ navigation }: AddGuardPageProps) => {
+
     const [GuardName, SetguardName] = useState<any | null>(null);
     const [FatherName, SetFatherName] = useState<any | null>(null);
     const [CNIC, SetCNIC] = useState<any | null>(null);
@@ -67,18 +68,6 @@ const AddGuard = ({ navigation }: AddGuardPageProps) => {
         }
     }
 
-    // const GetDatabase = async () => {
-    //     try {
-    //         const snapshot = await firestore().collection('Add_Guard_Collection').get();
-    //         const guardsdata = snapshot.docs.map(doc => ({
-    //             id: doc.id,
-    //             ...doc.data()
-    //         }));
-    //         //SetGuardData(guardsdata);
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // };
 
     return (
         <SafeAreaView style={styles.loginPageContainer}>

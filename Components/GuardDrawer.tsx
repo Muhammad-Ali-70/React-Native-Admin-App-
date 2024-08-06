@@ -26,7 +26,6 @@ const GuardDrawer = ({ navigation }: GuardDrawerPageProps) => {
   }
 
   const handleAddCustomer = () => {
-    console.log("Pressed!");
 
     navigation.navigate("AddCustomer");
 
