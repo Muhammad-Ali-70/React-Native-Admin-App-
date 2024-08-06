@@ -3,9 +3,15 @@ import React, { useState } from 'react';
 import firestore, { firebase } from '@react-native-firebase/firestore';
 import PrimaryButton from './PrimaryButton';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
+type RootStackParamList = {
+    AddCustomer: undefined;
+}
 
-const AddCustomer = ({ navigation }) => {
+type AddCustomerScreenProps = NativeStackScreenProps<RootStackParamList, "AddCustomer">
+
+const AddCustomer = ({ navigation }: AddCustomerScreenProps) => {
 
     const [CustomerName, SetCustomerName] = useState<any | null>(null);
     const [CustomerFatherName, SetCustomerFatherName] = useState<any | null>(null);
