@@ -75,11 +75,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   cardText: {
-    fontSize: 25,
+    fontSize: 20,
     color: "black"
   },
   cardTextFather: {
-    fontSize: 20,
+    fontSize: 16,
     color: "black"
   },
 });

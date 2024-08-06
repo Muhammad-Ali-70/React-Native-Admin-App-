@@ -244,14 +244,14 @@ const styles = StyleSheet.create({
         color: "black",
     },
     dividerHeading: {
-        fontSize: 25,
+        fontSize: 20,
         fontWeight: "bold",
         color: "black",
         paddingHorizontal: 10
     },
     dividerLine: {
         flex: 1,
-        height: 2,
+        height: 1.5,
         backgroundColor: 'black'
     },
     textInputContainer: {

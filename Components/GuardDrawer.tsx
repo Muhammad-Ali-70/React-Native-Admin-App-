@@ -13,6 +13,7 @@ type RootStackParamList = {
   GuardDrawer: undefined;
   AddGuard: undefined;
   GuardPage: undefined;
+  AddCustomer: undefined;
 };
 
 
@@ -25,7 +26,9 @@ const GuardDrawer = ({ navigation }: GuardDrawerPageProps) => {
   }
 
   const handleAddCustomer = () => {
-    //navigation.navigate("AddGuard");
+    console.log("Pressed!");
+
+    navigation.navigate("AddCustomer");
 
   }
   return (
