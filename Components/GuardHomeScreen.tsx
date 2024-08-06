@@ -49,6 +49,7 @@ function GuardPage({ navigation }: GuardHomeScreenProps) {
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => { handleGuardDetails(item.id) }}>
             <View style={styles.listcontainer}>
+              <Text style={styles.cardText}>ID: {item ? item.id : "Loading"}</Text>
               <Text style={styles.cardText}>Name: {item ? item.GName : "Loading"}</Text>
               <Text style={styles.cardTextFather}>Father Name: {item ? item.GFName : "Loading"}</Text>
             </View>

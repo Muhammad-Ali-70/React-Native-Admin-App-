@@ -7,6 +7,8 @@ import SignUpScreen from "./Components/SignUpScreen";
 import GuardDrawer from "./Components/GuardDrawer";
 import AddGuard from "./Components/AddGuard";
 import GuardDetails from "./Components/GuardDetails";
+// import EditGuardDetails from "./Components/EditGuardDetails";
+
 
 type RootStackParamList = {
   Home: undefined;
@@ -15,6 +17,7 @@ type RootStackParamList = {
   GuardDrawer: undefined;
   AddGuard: undefined;
   GuardDetails: undefined;
+  // EditGuardDetails: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -22,7 +25,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="GuardDrawer">
+      <Stack.Navigator initialRouteName="Home">
         <Stack.Screen options={{ headerShown: false }} name="Home" component={HomeScreen} />
         <Stack.Screen options={{ headerShown: false }} name="Login" component={LoginScreen} />
         <Stack.Screen options={{ headerShown: false }} name="SignUp" component={SignUpScreen} />
@@ -30,6 +33,8 @@ function App() {
         <Stack.Screen options={{ headerTitle: "Add Guard", headerStyle: { backgroundColor: "black" }, headerTintColor: "white", headerTitleAlign: "center" }} name="AddGuard" component={AddGuard} />
 
         <Stack.Screen options={{ headerTitle: "Guard Details", headerStyle: { backgroundColor: "black" }, headerTintColor: "white", headerTitleAlign: "center" }} name="GuardDetails" component={GuardDetails} />
+
+        {/* <Stack.Screen options={{ headerTitle: "Edit Guard Details", headerStyle: { backgroundColor: "black" }, headerTintColor: "white", headerTitleAlign: "center" }} name="EditGuardDetails" component={EditGuardDetails} /> */}
 
 
 

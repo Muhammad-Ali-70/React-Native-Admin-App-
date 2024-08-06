@@ -22,7 +22,7 @@ function LoginScreen({ navigation }: LoginScreenProps) {
     const handleSignIn = async () => {
         if (email && password) {
             try {
-                await auth().signInWithEmailAndPassword(email, password);
+                await auth().signInWithEmailAndPassword("ahmed@gmail.com", "12345678");
                 Alert.alert("User Logged In");
                 navigation.navigate("GuardDrawer");
                 // navigation.navigate("GuardDrawer", { userEmail: email });
