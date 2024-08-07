@@ -17,12 +17,12 @@ type RootStackParamList = {
   Home: undefined;
   Login: undefined;
   SignUp: undefined;
-  GuardDrawer: undefined;
-  AddGuard: undefined;
-  GuardDetails: undefined;
+  GuardDrawer: { UID_Key: string };
+  AddGuard: { UID_Key: string };
+  GuardDetails: { guardId: string };
   EditGuardDetails: undefined;
-  AddCustomer: undefined;
-  CustomerDetails: undefined;
+  AddCustomer: { UID_Key: string };
+  CustomerDetails: { CustomerID: string };
   AssignGuards: undefined;
 };
 
