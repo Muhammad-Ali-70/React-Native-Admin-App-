@@ -24,17 +24,11 @@ function LoginScreen({ navigation }: LoginScreenProps) {
     const handleSignIn = async () => {
         if (email && password) {
             try {
-                await auth().signInWithEmailAndPassword("usamamahqnoor@gmail.com", "12345678").then((Response) => {
-                    //SetUid(Response.user.uid);
+                await auth().signInWithEmailAndPassword(email, password).then((Response) => {
                     console.log("Response from Login Page: ", Response.user.uid);
-
                     Alert.alert("User Logged In");
-
                     navigation.navigate("GuardDrawer", { UID_Key: Response.user.uid });
-
                 });
-
-                //usamamahqnoor@gmail.com
             } catch (error: any) {
                 if (error.code === 'auth/email-already-in-use') {
                     Alert.alert("Email Already in Use", "That email address is already in use!");

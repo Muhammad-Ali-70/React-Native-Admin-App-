@@ -23,25 +23,38 @@ function GuardPage({ route, navigation }: GuardHomeScreenProps) {
   const [GuardsData, SetGuardData] = useState<any[]>([]);
 
 
-
   useEffect(() => {
+    console.log("UID_KEY:", UID_Key);
 
-    console.log("UID KEY IS: ", UID_Key);
+    if (!UID_Key) {
+      console.log("UID_KEY is not available");
+      return;
+    }
 
-    const subscriber = firestore()
+    const unsubscribe = firestore()
       .collection('Add_Guard_Collection')
-      .orderBy("GName", "asc").where("UserAccount", '==', UID_Key)
+      .where("UserAccount", '==', UID_Key)
       .onSnapshot(querySnapshot => {
         const guardsData = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         }));
 
+        console.log("Guards data in Guard HomeScreen:", guardsData);
+
         SetGuardData(guardsData);
       }, error => {
-        console.log(error);
+        console.log("Firestore error:", error);
       });
-  }, [GuardsData]);
+
+    // Cleanup subscription on unmount
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [UID_Key]);
+
 
   const handleGuardDetails = (guardId: string) => {
     navigation.navigate("GuardDetails", { guardId });
