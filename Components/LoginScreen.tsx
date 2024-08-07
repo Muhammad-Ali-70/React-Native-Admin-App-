@@ -7,7 +7,6 @@ import auth from '@react-native-firebase/auth';
 
 export type RootStackParamList = {
     Login: undefined;
-    //GuardDrawer: undefined;
     GuardDrawer: { UID_Key: string };
     AddGuard: undefined;
 };
@@ -18,33 +17,34 @@ function LoginScreen({ navigation }: LoginScreenProps) {
     const [focusedField, setFocusedField] = useState<string | null>(null);
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    // const [Uid, SetUid] = useState<string>('');
-
 
     const handleSignIn = async () => {
         if (email && password) {
             try {
-                await auth().signInWithEmailAndPassword(email, password).then((Response) => {
-                    console.log("Response from Login Page: ", Response.user.uid);
-                    Alert.alert("User Logged In");
-                    navigation.navigate("GuardDrawer", { UID_Key: Response.user.uid });
-                });
+                const response = await auth().signInWithEmailAndPassword(email, password);
+                console.log("Response from Login Page: ", response.user.uid);
+                Alert.alert("User Logged In");
+                navigation.navigate("GuardDrawer", { UID_Key: response.user.uid });
             } catch (error: any) {
-                if (error.code === 'auth/email-already-in-use') {
-                    Alert.alert("Email Already in Use", "That email address is already in use!");
-                } else if (error.code === 'auth/invalid-email') {
-                    Alert.alert("Invalid Email", "That email address is invalid!");
-                } else if (error.code === 'auth/weak-password') {
-                    Alert.alert("Weak Password", "Password should be at least 6 characters");
-                } else if (error.code === 'auth/invalid-credential') {
-                    Alert.alert("Error", "Invalid Credentials");
-                }
-                else {
-                    Alert.alert("Error", "Something went Wrong. Try Again!")
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        Alert.alert("Email Already in Use", "That email address is already in use!");
+                        break;
+                    case 'auth/invalid-email':
+                        Alert.alert("Invalid Email", "That email address is invalid!");
+                        break;
+                    case 'auth/weak-password':
+                        Alert.alert("Weak Password", "Password should be at least 6 characters");
+                        break;
+                    case 'auth/invalid-credential':
+                        Alert.alert("Error", "Invalid Credentials");
+                        break;
+                    default:
+                        Alert.alert("Error", "Something went Wrong. Try Again!");
+                        break;
                 }
                 console.error(error);
             }
-
         } else {
             Alert.alert("Enter Email & Password First");
         }

@@ -6,12 +6,12 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 type RootStackParamList = {
-    AddCustomer: undefined;
+    AddCustomer: { UID_Key: string };
 }
 
 type AddCustomerScreenProps = NativeStackScreenProps<RootStackParamList, "AddCustomer">
 
-const AddCustomer = ({ navigation }: AddCustomerScreenProps) => {
+const AddCustomer = ({ route, navigation }: AddCustomerScreenProps) => {
 
     const [CustomerName, SetCustomerName] = useState<any | null>(null);
     const [CustomerFatherName, SetCustomerFatherName] = useState<any | null>(null);
@@ -21,6 +21,8 @@ const AddCustomer = ({ navigation }: AddCustomerScreenProps) => {
     const [CustomerPhone, SetCustomerPhone] = useState<any | null>(null);
 
     const [focusedField, setFocusedField] = useState<null | string>(null);
+
+    const { UID_Key } = route.params;
 
 
     const HandleAddData = async () => {
@@ -41,6 +43,7 @@ const AddCustomer = ({ navigation }: AddCustomerScreenProps) => {
                 CAddress: CustomerAddress,
                 CAgreeAmount: CustomerAgreementAmount,
                 CPhone: CustomerPhone,
+                UserAccount: UID_Key,
             })
             Alert.alert("Successfull", "Customer has been added to the Database!");
 

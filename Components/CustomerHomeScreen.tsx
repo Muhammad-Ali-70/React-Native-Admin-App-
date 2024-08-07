@@ -6,45 +6,73 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import PrimaryButton from './PrimaryButton';
 
 type RootStackParamList = {
-    CustomerHomeScreen: undefined;
+    CustomerHomeScreen: { UID_Key: string };
     CustomerDetails: { CustomerID: string };
+    AssignGuards: undefined;
 }
 
 type DetailsScreenProps = NativeStackScreenProps<RootStackParamList, 'CustomerHomeScreen'>;
 
-const CustomerHomeScreen = ({ navigation }: DetailsScreenProps) => {
+const CustomerHomeScreen = ({ route, navigation }: DetailsScreenProps) => {
+
+    const { UID_Key } = route.params;
+    console.log("UID Key in Customer Screen is: ", UID_Key);
+
 
     const [CustomersData, SetCustomersData] = useState<any[]>([]);
     const [IsModalVisible, SetIsModalVisible] = useState(false);
 
     useEffect(() => {
-        try {
-            const subscriber = firestore()
+
+        const fetchCustomers = () => {
+            if (!UID_Key) {
+                console.log("UID_KEY is not available");
+                return;
+            }
+
+            const unsubscribe = firestore()
                 .collection('Add_Customer_Collection')
+                .where("UserAccount", '==', UID_Key)
                 .onSnapshot(querySnapshot => {
                     const customData = querySnapshot.docs.map(doc => ({
                         id: doc.id,
                         ...doc.data()
                     }));
 
+                    console.log("Customer data in Customer HomeScreen:", customData);
+
                     SetCustomersData(customData);
                 }, error => {
-                    console.log(error);
+                    console.log("Firestore error:", error);
                 });
 
-            // Unsubscribe from events when no longer in use
-            return () => subscriber();
-        } catch (error) {
-            console.log(error);
-        }
+            // Cleanup subscription on unmount
+            return unsubscribe;
+        };
 
-    }, []);
+        const unsubscribe = fetchCustomers();
+
+        // Cleanup function
+        return () => {
+            if (unsubscribe) {
+                unsubscribe();
+            }
+        };
+    }, [UID_Key]);
+
+
 
     const HandleCustomerDetails = (CustomerID: string) => {
-        console.log("Pressed!");
 
         navigation.navigate("CustomerDetails", { CustomerID });
     }
+
+    const HandleAssignGuards = () => {
+        SetIsModalVisible(false)
+        navigation.navigate("AssignGuards");
+    }
+
+
 
     return (
         <View style={styles.mainContainer}>
@@ -74,8 +102,18 @@ const CustomerHomeScreen = ({ navigation }: DetailsScreenProps) => {
             <Modal visible={IsModalVisible} transparent={true} animationType='slide'>
                 <View style={styles.modalBackground}>
                     <View style={styles.modalcontainer}>
-                        <Text style={styles.cardText}>This is Modal</Text>
-                        <PrimaryButton text='Back' onPress={() => { SetIsModalVisible(false) }} />
+                        <View style={styles.buttonStyle}>
+                            <PrimaryButton text='Assign Guards' color='black' textcolor="white"
+                                onPress={HandleAssignGuards} />
+                        </View>
+                        <View style={styles.buttonStyle}>
+
+                            <PrimaryButton text='Remove Guards' color='black' textcolor="white" onPress={() => { SetIsModalVisible(false) }} />
+                        </View>
+                        <View style={styles.buttonStyle}>
+                            <PrimaryButton text='Cancel' color='#ff0000' textcolor="white" onPress={() => { SetIsModalVisible(false) }} />
+
+                        </View>
                     </View>
                 </View>
             </Modal>
@@ -104,18 +142,18 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.1)'  // Semi-transparent background
+        backgroundColor: 'rgba(0, 0, 0, 0.21)'  // Semi-transparent background
     },
     modalcontainer: {
-        backgroundColor: "white",
-        width: 300,
-        height: 200,
-        borderRadius: 10,
+        backgroundColor: "#ffffff",
+        width: 320,
+        height: 240,
+        borderRadius: 25,
         alignSelf: 'center',
-        margin: 0,
         justifyContent: 'center',
         alignItems: 'center',
-        elevation: 5,  // Optional: adds shadow effect
+        elevation: 40,  // Optional: adds shadow effect
+
     },
     cardText: {
         fontSize: 18,
@@ -130,5 +168,10 @@ const styles = StyleSheet.create({
         flex: 2,
         justifyContent: "center",
         alignItems: "center",
+    },
+    buttonStyle: {
+        width: 230,
+        marginVertical: 10,
     }
+
 });

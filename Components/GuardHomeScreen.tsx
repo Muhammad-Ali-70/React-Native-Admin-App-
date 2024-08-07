@@ -7,7 +7,6 @@ type RootStackParamList = {
   Login: undefined;
   GuardDrawer: undefined;
   AddGuard: undefined;
-  //GuardPage: undefined;
   GuardPage: { UID_Key: string };
   GuardDetails: { guardId: string };
 };
@@ -17,44 +16,44 @@ type GuardHomeScreenProps = NativeStackScreenProps<RootStackParamList, 'GuardPag
 function GuardPage({ route, navigation }: GuardHomeScreenProps) {
   const { UID_Key } = route.params;
 
-  //console.log("UID KEY IS: ", UID_Key);
-
-
   const [GuardsData, SetGuardData] = useState<any[]>([]);
 
-
   useEffect(() => {
-    console.log("UID_KEY:", UID_Key);
+    const fetchGuards = () => {
+      if (!UID_Key) {
+        console.log("UID_KEY is not available");
+        return;
+      }
 
-    if (!UID_Key) {
-      console.log("UID_KEY is not available");
-      return;
-    }
+      const unsubscribe = firestore()
+        .collection('Add_Guard_Collection')
+        .where("UserAccount", '==', UID_Key)
+        .onSnapshot(querySnapshot => {
+          const guardsData = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
 
-    const unsubscribe = firestore()
-      .collection('Add_Guard_Collection')
-      .where("UserAccount", '==', UID_Key)
-      .onSnapshot(querySnapshot => {
-        const guardsData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
+          console.log("Guards data in Guard HomeScreen:", guardsData);
 
-        console.log("Guards data in Guard HomeScreen:", guardsData);
+          SetGuardData(guardsData);
+        }, error => {
+          console.log("Firestore error:", error);
+        });
 
-        SetGuardData(guardsData);
-      }, error => {
-        console.log("Firestore error:", error);
-      });
+      // Cleanup subscription on unmount
+      return unsubscribe;
+    };
 
-    // Cleanup subscription on unmount
+    const unsubscribe = fetchGuards();
+
+    // Cleanup function
     return () => {
       if (unsubscribe) {
         unsubscribe();
       }
     };
   }, [UID_Key]);
-
 
   const handleGuardDetails = (guardId: string) => {
     navigation.navigate("GuardDetails", { guardId });
@@ -66,7 +65,7 @@ function GuardPage({ route, navigation }: GuardHomeScreenProps) {
         data={GuardsData}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => { handleGuardDetails(item.id) }}>
+          <TouchableOpacity onPress={() => handleGuardDetails(item.id)}>
             <View style={styles.listcontainer}>
               <Text style={styles.cardText}>ID: {item ? item.id : "Loading"}</Text>
               <Text style={styles.cardText}>Name: {item ? item.GName : "Loading"}</Text>
