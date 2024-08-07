@@ -7,8 +7,8 @@ import auth from '@react-native-firebase/auth';
 
 export type RootStackParamList = {
     Login: undefined;
-    GuardDrawer: undefined;
-    //GuardDrawer: { userEmail: string };
+    //GuardDrawer: undefined;
+    GuardDrawer: { UID_Key: string };
     AddGuard: undefined;
 };
 
@@ -18,14 +18,23 @@ function LoginScreen({ navigation }: LoginScreenProps) {
     const [focusedField, setFocusedField] = useState<string | null>(null);
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    // const [Uid, SetUid] = useState<string>('');
+
 
     const handleSignIn = async () => {
         if (email && password) {
             try {
-                await auth().signInWithEmailAndPassword("ahmed@gmail.com", "12345678");
-                Alert.alert("User Logged In");
-                navigation.navigate("GuardDrawer");
-                // navigation.navigate("GuardDrawer", { userEmail: email });
+                await auth().signInWithEmailAndPassword("usamamahqnoor@gmail.com", "12345678").then((Response) => {
+                    //SetUid(Response.user.uid);
+                    console.log("Response from Login Page: ", Response.user.uid);
+
+                    Alert.alert("User Logged In");
+
+                    navigation.navigate("GuardDrawer", { UID_Key: Response.user.uid });
+
+                });
+
+                //usamamahqnoor@gmail.com
             } catch (error: any) {
                 if (error.code === 'auth/email-already-in-use') {
                     Alert.alert("Email Already in Use", "That email address is already in use!");
@@ -39,8 +48,9 @@ function LoginScreen({ navigation }: LoginScreenProps) {
                 else {
                     Alert.alert("Error", "Something went Wrong. Try Again!")
                 }
-                //console.error(error);
+                console.error(error);
             }
+
         } else {
             Alert.alert("Enter Email & Password First");
         }

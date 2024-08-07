@@ -7,20 +7,30 @@ type RootStackParamList = {
   Login: undefined;
   GuardDrawer: undefined;
   AddGuard: undefined;
-  GuardPage: undefined;
+  //GuardPage: undefined;
+  GuardPage: { UID_Key: string };
   GuardDetails: { guardId: string };
 };
 
 type GuardHomeScreenProps = NativeStackScreenProps<RootStackParamList, 'GuardPage'>;
 
-function GuardPage({ navigation }: GuardHomeScreenProps) {
+function GuardPage({ route, navigation }: GuardHomeScreenProps) {
+  const { UID_Key } = route.params;
 
-  const [GuardsData, SetGuardData] = useState<any[]>([]); // Initialize as an array
+  //console.log("UID KEY IS: ", UID_Key);
+
+
+  const [GuardsData, SetGuardData] = useState<any[]>([]);
+
+
 
   useEffect(() => {
+
+    console.log("UID KEY IS: ", UID_Key);
+
     const subscriber = firestore()
       .collection('Add_Guard_Collection')
-      .orderBy("GName", "asc")
+      .orderBy("GName", "asc").where("UserAccount", '==', UID_Key)
       .onSnapshot(querySnapshot => {
         const guardsData = querySnapshot.docs.map(doc => ({
           id: doc.id,
@@ -31,14 +41,10 @@ function GuardPage({ navigation }: GuardHomeScreenProps) {
       }, error => {
         console.log(error);
       });
-
-    // Unsubscribe from events when no longer in use
-    return () => subscriber();
-  }, []);
-
+  }, [GuardsData]);
 
   const handleGuardDetails = (guardId: string) => {
-    navigation.navigate("GuardDetails", { guardId })
+    navigation.navigate("GuardDetails", { guardId });
   }
 
   return (

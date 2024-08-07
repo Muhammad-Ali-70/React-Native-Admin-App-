@@ -7,15 +7,17 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 
 type RootStackParamList = {
-    GuardDrawer: undefined;
-    AddGuard: undefined;
+    GuardDrawer: { UID_Key: string };
+    AddGuard: { UID_Key: string };
 };
 
 
 type AddGuardPageProps = NativeStackScreenProps<RootStackParamList, 'AddGuard'>;
 
 
-const AddGuard = ({ navigation }: AddGuardPageProps) => {
+const AddGuard = ({ route, navigation }: AddGuardPageProps) => {
+
+    const { UID_Key } = route.params;
 
     const [GuardName, SetguardName] = useState<any | null>(null);
     const [FatherName, SetFatherName] = useState<any | null>(null);
@@ -47,6 +49,7 @@ const AddGuard = ({ navigation }: AddGuardPageProps) => {
                     GAddress: Address,
                     GSalary: Salary,
                     GPhone: Phone,
+                    UserAccount: UID_Key,
                 });
 
             Alert.alert("Guard Added to Firebase!");
@@ -58,7 +61,7 @@ const AddGuard = ({ navigation }: AddGuardPageProps) => {
             SetSalary("");
             Setphone("");
 
-            navigation.navigate("GuardDrawer");
+            navigation.navigate("GuardDrawer", { UID_Key: UID_Key });
 
 
 

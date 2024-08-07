@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import { SafeAreaView, StyleSheet, TextInput, View, Alert } from "react-native";
 import PrimaryButton from "../Components/PrimaryButton";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import auth from '@react-native-firebase/auth';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import firestore, { serverTimestamp } from '@react-native-firebase/firestore';
 
 type RootStackParamList = {
     SignUp: undefined;
@@ -16,15 +17,30 @@ type SignUpScreenProps = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
 function SignUpScreen({ navigation }: SignUpScreenProps) {
     const [focusedField, setFocusedField] = useState<null | string>(null);
 
+    const [Name, SetName] = useState<any | null>(null);
     const [Email, SetEmail] = useState<any | null>(null);
     const [Password, SetPassword] = useState<any | null>(null);
 
     const handleSignup = async () => {
 
-        if (Email != null && Password != null) {
-            const UserAuthen = await auth().createUserWithEmailAndPassword(Email, Password).then(() => {
-                Alert.alert("User Account created !")
 
+        if (Email != null && Password != null) {
+            await auth().createUserWithEmailAndPassword(Email, Password).then((response) => {
+
+                if (response) {
+
+                    const userDocument = firestore().collection('All_Users').doc(response.user.uid).set({
+                        UserName: Name,
+                        UserEmail: Email,
+                        UserPassword: Password,
+                        TimeStamp: new Date().toLocaleString(),
+                    })
+                    console.log(userDocument);
+
+                    console.log("Doc Created in Firestore!");
+
+                }
+                Alert.alert("User Account created !")
                 // passing parameters to the next screen
                 navigation.navigate("Login");
 
@@ -62,6 +78,8 @@ function SignUpScreen({ navigation }: SignUpScreenProps) {
                     placeholder="Name"
                     onFocus={() => setFocusedField('name')}
                     onBlur={() => setFocusedField(null)}
+                    onChangeText={(value) => { SetName(value) }}
+                    value={Name}
 
                 />
             </View>
