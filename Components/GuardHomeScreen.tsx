@@ -36,8 +36,6 @@ function GuardPage({ route, navigation }: GuardHomeScreenProps) {
             ...doc.data()
           }));
 
-          //console.log("Guards data in Guard HomeScreen:", guardsData);
-
           SetGuardData(guardsData);
         }, error => {
           console.log("Firestore error:", error);

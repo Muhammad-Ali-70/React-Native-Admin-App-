@@ -21,7 +21,6 @@ const AssignGuards = ({ route, navigation }: AssignGuardsNativeScreenProps) => {
 
     const [GuardsData, SetGuardData] = useState<any[]>([]);
     const [IsAssignedButton, SetIsAssignedButton] = useState(false);
-    const [GuardID, SetGuardID] = useState("");
 
     const fetchGuards = () => {
         if (!UID_Key) {
@@ -38,7 +37,6 @@ const AssignGuards = ({ route, navigation }: AssignGuardsNativeScreenProps) => {
                     ...doc.data()
                 }));
 
-                console.log("Guards data in Guard HomeScreen:", guardsData);
 
                 SetGuardData(guardsData);
             }, error => {
@@ -61,13 +59,17 @@ const AssignGuards = ({ route, navigation }: AssignGuardsNativeScreenProps) => {
     }, [UID_Key]);
 
     const HandleAssign = async (item: string) => {
-
         try {
-
             const selected_Guard_response = await firestore().collection('Add_Guard_Collection').doc(item).get();
+            const guardName = selected_Guard_response.data()?.GName;
+
+            if (!guardName) {
+                Alert.alert("Error", "Guard name not found");
+                return;
+            }
 
             await firestore().collection("Add_Customer_Collection").doc(CUS_ID).update({
-                AssignedGuards: firestore.FieldValue.arrayUnion(selected_Guard_response.data()?.GName),
+                AssignedGuards: firestore.FieldValue.arrayUnion(guardName),
             });
 
             await firestore().collection('Add_Guard_Collection').doc(item).update({
@@ -75,15 +77,13 @@ const AssignGuards = ({ route, navigation }: AssignGuardsNativeScreenProps) => {
             });
 
             Alert.alert("Success", "Guard has been Assigned to the Customer");
-            SetIsAssignedButton(true);
+            // SetIsAssignedButton(true);
         } catch (error) {
             console.log(error);
             Alert.alert("Error", "Failed to update guard details");
         }
+    };
 
-
-
-    }
 
 
     return (

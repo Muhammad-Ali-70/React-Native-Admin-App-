@@ -9,6 +9,7 @@ type RootStackParamList = {
     CustomerHomeScreen: { UID_Key: string };
     CustomerDetails: { CustomerID: string };
     AssignGuards: { UID_Key: string, CUS_ID: string };
+    RemoveGuards: { UID_Key: string, CUS_ID: string };
 }
 
 type DetailsScreenProps = NativeStackScreenProps<RootStackParamList, 'CustomerHomeScreen'>;
@@ -16,8 +17,6 @@ type DetailsScreenProps = NativeStackScreenProps<RootStackParamList, 'CustomerHo
 const CustomerHomeScreen = ({ route, navigation }: DetailsScreenProps) => {
 
     const { UID_Key } = route.params;
-    console.log("UID Key in Customer Screen is: ", UID_Key);
-
 
     const [CustomersData, SetCustomersData] = useState<any[]>([]);
     const [IsModalVisible, SetIsModalVisible] = useState(false);
@@ -40,7 +39,7 @@ const CustomerHomeScreen = ({ route, navigation }: DetailsScreenProps) => {
                         ...doc.data()
                     }));
 
-                    console.log("Customer data in Customer HomeScreen:", customData);
+                    //console.log("Customer data in Customer HomeScreen:", customData);
 
                     SetCustomersData(customData);
                 }, error => {
@@ -70,8 +69,12 @@ const CustomerHomeScreen = ({ route, navigation }: DetailsScreenProps) => {
 
     const HandleAssignGuards = () => {
         SetIsModalVisible(false)
-        console.log("CUS ID in Customer Home Screen is:", ItemID);
         navigation.navigate("AssignGuards", { UID_Key: UID_Key, CUS_ID: ItemID });
+    }
+
+    const HandleRemoveGuards = () => {
+        SetIsModalVisible(false)
+        navigation.navigate("RemoveGuards", { UID_Key: UID_Key, CUS_ID: ItemID });
     }
 
     return (
@@ -84,12 +87,11 @@ const CustomerHomeScreen = ({ route, navigation }: DetailsScreenProps) => {
                         <View style={{ flexDirection: "row", flex: 1 }}>
                             <View style={styles.dataSide} >
                                 <TouchableOpacity onPress={() => {
-
                                     HandleCustomerDetails(item.id)
                                 }}>
                                     <Text style={styles.cardText}>ID: {item ? item.id : "Loading"}</Text>
                                     <Text style={styles.cardText}>Customer: {item ? item.CName : "Loading"}</Text>
-                                    <Text style={styles.cardText}>Guards: {item.AssignedGuards.join(", ")}</Text>
+                                    <Text style={styles.cardText}>Guards: {item.AssignedGuards ? item.AssignedGuards.join(", ") : " - "}</Text>
                                 </TouchableOpacity>
                             </View>
 
@@ -116,7 +118,7 @@ const CustomerHomeScreen = ({ route, navigation }: DetailsScreenProps) => {
                         </View>
                         <View style={styles.buttonStyle}>
 
-                            <PrimaryButton text='Remove Guards' color='black' textcolor="white" onPress={() => { SetIsModalVisible(false) }} />
+                            <PrimaryButton text='Remove Guards' color='black' textcolor="white" onPress={HandleRemoveGuards} />
                         </View>
                         <View style={styles.buttonStyle}>
                             <PrimaryButton text='Cancel' color='#ff0000' textcolor="white" onPress={() => { SetIsModalVisible(false) }} />
