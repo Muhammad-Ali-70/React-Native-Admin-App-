@@ -23,7 +23,7 @@ type RootStackParamList = {
   EditGuardDetails: undefined;
   AddCustomer: { UID_Key: string };
   CustomerDetails: { CustomerID: string };
-  AssignGuards: undefined;
+  AssignGuards: { UID_Key: string, CUS_ID: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -40,13 +40,11 @@ function App() {
 
         <Stack.Screen options={{ headerTitle: "Guard Details", headerStyle: { backgroundColor: "black" }, headerTintColor: "white", headerTitleAlign: "center" }} name="GuardDetails" component={GuardDetails} />
 
-
         <Stack.Screen options={{ headerTitle: "Add Customer", headerStyle: { backgroundColor: "black" }, headerTintColor: "white", headerTitleAlign: "center" }} name="AddCustomer" component={AddCustomer} />
 
         <Stack.Screen options={{ headerTitle: "Customer Details", headerStyle: { backgroundColor: "black" }, headerTintColor: "white", headerTitleAlign: "center" }} name="CustomerDetails" component={CustomerDetails} />
 
         <Stack.Screen options={{ headerTitle: "Assign Guards", headerStyle: { backgroundColor: "black" }, headerTintColor: "white", headerTitleAlign: "center" }} name="AssignGuards" component={AssignGuards} />
-
 
       </Stack.Navigator>
     </NavigationContainer>

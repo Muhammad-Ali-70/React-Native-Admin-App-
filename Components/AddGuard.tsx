@@ -50,6 +50,7 @@ const AddGuard = ({ route, navigation }: AddGuardPageProps) => {
                     GSalary: Salary,
                     GPhone: Phone,
                     UserAccount: UID_Key,
+                    IsAssigned: true,
                 });
 
             Alert.alert("Guard Added to Firebase!");
@@ -165,6 +166,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         paddingHorizontal: 40,
+        backgroundColor: "white"
     },
     textInputContainer: {
         backgroundColor: "lightgrey",

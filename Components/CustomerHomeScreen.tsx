@@ -8,7 +8,7 @@ import PrimaryButton from './PrimaryButton';
 type RootStackParamList = {
     CustomerHomeScreen: { UID_Key: string };
     CustomerDetails: { CustomerID: string };
-    AssignGuards: undefined;
+    AssignGuards: { UID_Key: string, CUS_ID: string };
 }
 
 type DetailsScreenProps = NativeStackScreenProps<RootStackParamList, 'CustomerHomeScreen'>;
@@ -21,6 +21,7 @@ const CustomerHomeScreen = ({ route, navigation }: DetailsScreenProps) => {
 
     const [CustomersData, SetCustomersData] = useState<any[]>([]);
     const [IsModalVisible, SetIsModalVisible] = useState(false);
+    const [ItemID, SetItemID] = useState("");
 
     useEffect(() => {
 
@@ -69,7 +70,8 @@ const CustomerHomeScreen = ({ route, navigation }: DetailsScreenProps) => {
 
     const HandleAssignGuards = () => {
         SetIsModalVisible(false)
-        navigation.navigate("AssignGuards");
+        console.log("CUS ID in Customer Home Screen is:", ItemID);
+        navigation.navigate("AssignGuards", { UID_Key: UID_Key, CUS_ID: ItemID });
     }
 
 
@@ -83,10 +85,13 @@ const CustomerHomeScreen = ({ route, navigation }: DetailsScreenProps) => {
                     <View style={styles.listcontainer}>
                         <View style={{ flexDirection: "row", flex: 1 }}>
                             <View style={styles.dataSide} >
-                                <TouchableOpacity onPress={() => { HandleCustomerDetails(item.id) }}>
+                                <TouchableOpacity onPress={() => {
+                                    SetItemID(item.id)
+                                    HandleCustomerDetails(item.id)
+                                }}>
                                     <Text style={styles.cardText}>ID: {item ? item.id : "Loading"}</Text>
                                     <Text style={styles.cardText}>Customer: {item ? item.CName : "Loading"}</Text>
-                                    <Text style={styles.cardText}>Customer: {item ? item.CName : "Loading"}</Text>
+                                    <Text style={styles.cardText}>Assigned Guards: -------</Text>
                                 </TouchableOpacity>
                             </View>
 
