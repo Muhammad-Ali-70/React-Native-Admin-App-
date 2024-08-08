@@ -70,13 +70,13 @@ function GuardPage({ route, navigation }: GuardHomeScreenProps) {
           <TouchableOpacity onPress={() => handleGuardDetails(item.id)}>
             <View style={styles.listcontainer}>
               <View style={styles.dataside}>
-                <Text style={styles.cardText}>ID: {item ? item.id : "Loading"}</Text>
+                <Text style={[styles.cardText, { fontSize: 16, }]}>ID: {item ? item.id : "Loading"}</Text>
                 <Text style={styles.cardText}>Name: {item ? item.GName : "Loading"}</Text>
-                <Text style={styles.cardTextFather}>Father Name: {item ? item.GFName : "Loading"}</Text>
+                <Text style={styles.cardText}>Father Name: {item ? item.GFName : "Loading"}</Text>
               </View>
-              <Text></Text>
               <View style={styles.IconSide}>
-                {item.IsAssigned ? <Icon name="check" size={30} color="green" style={styles.iconStyle} /> : <Icon name="close" size={31} color="#f60505" style={styles.iconStyle} />}
+                <Text style={{ fontSize: 15, color: "black", marginBottom: 10, fontWeight: "bold" }}>Assign Status</Text>
+                {item.IsAssigned ? <Icon name="check" size={25} color="#75c675" style={styles.iconStyle} /> : <Icon name="close" size={25} color="#c07e7e" style={styles.iconStyle} />}
               </View>
 
             </View>
@@ -104,30 +104,27 @@ const styles = StyleSheet.create({
   },
   cardText: {
     fontSize: 18,
-    color: "black"
-  },
-  cardTextFather: {
-    fontSize: 18,
-    color: "black"
+    color: "black",
+    marginTop: 7,
+
   },
   dataside: {
     //backgroundColor: "#ff00e6",
-    flex: 8
+    flex: 6
   },
   IconSide: {
-    //backgroundColor: "#80ff25",
-    flex: 2,
+    // backgroundColor: "#80ff25",
+    flex: 3,
     justifyContent: "center",
     alignItems: "center",
   },
   iconStyle: {
-    backgroundColor: "#f1f1f1",
-    padding: 15,
+    backgroundColor: "#f5f5f5",
+    padding: 10,
     borderRadius: 50,
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     textAlign: "center"
-
 
   }
 });

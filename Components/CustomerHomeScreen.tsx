@@ -89,7 +89,7 @@ const CustomerHomeScreen = ({ route, navigation }: DetailsScreenProps) => {
                                 }}>
                                     <Text style={styles.cardText}>ID: {item ? item.id : "Loading"}</Text>
                                     <Text style={styles.cardText}>Customer: {item ? item.CName : "Loading"}</Text>
-                                    <Text style={styles.cardText}>Assigned Guards: -------</Text>
+                                    <Text style={styles.cardText}>Guards: {item.AssignedGuards.join(", ")}</Text>
                                 </TouchableOpacity>
                             </View>
 

@@ -181,21 +181,21 @@ const CustomerDetails = ({ route, navigation }: DetailsScreenProps) => {
                     </View>
                     <View style={styles.detaiscontainer}>
                         <View style={{ flexDirection: "row" }}>
-                            <Text style={styles.detailstext}>CustomerCNIC: </Text>
+                            <Text style={styles.detailstext}>CNIC: </Text>
                             <Text style={styles.dataText}>{CustomerData.CCNIC}</Text>
                         </View>
                         <View style={{ flexDirection: "row" }}>
-                            <Text style={styles.detailstext}>CustomerAddress: </Text>
+                            <Text style={styles.detailstext}>Address: </Text>
                             <Text style={styles.dataText}>{CustomerData.CAddress}</Text>
                         </View>
                     </View>
                     <View style={styles.detaiscontainer}>
                         <View style={{ flexDirection: "row" }}>
-                            <Text style={styles.detailstext}>CustomerPhone: </Text>
+                            <Text style={styles.detailstext}>Phone: </Text>
                             <Text style={styles.dataText}>{CustomerData.CPhone}</Text>
                         </View>
                         <View style={{ flexDirection: "row" }}>
-                            <Text style={styles.detailstext}>AgreementAmount: </Text>
+                            <Text style={styles.detailstext}>Agreement Amount: </Text>
                             <Text style={styles.dataText}>{CustomerData.CAgreeAmount}</Text>
                         </View>
                     </View>
@@ -244,12 +244,12 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     detailstext: {
-        fontSize: 15,
+        fontSize: 16,
         fontWeight: "bold",
         color: "black",
     },
     dataText: {
-        fontSize: 15,
+        fontSize: 16,
         color: "black",
     },
     dividerHeading: {

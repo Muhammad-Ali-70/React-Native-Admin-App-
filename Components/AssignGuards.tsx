@@ -51,27 +51,38 @@ const AssignGuards = ({ route, navigation }: AssignGuardsNativeScreenProps) => {
 
 
     useEffect(() => {
-        fetchGuards();
-        // const unsubscribe = fetchGuards();
+        const unsubscribe = fetchGuards();
 
-        // return () => {
-        //     if (unsubscribe) {
-        //         unsubscribe();
-        //     }
-        // };
+        return () => {
+            if (unsubscribe) {
+                unsubscribe();
+            }
+        };
     }, [UID_Key]);
 
     const HandleAssign = async (item: string) => {
+
         try {
+
+            const selected_Guard_response = await firestore().collection('Add_Guard_Collection').doc(item).get();
+
+            await firestore().collection("Add_Customer_Collection").doc(CUS_ID).update({
+                AssignedGuards: firestore.FieldValue.arrayUnion(selected_Guard_response.data()?.GName),
+            });
+
             await firestore().collection('Add_Guard_Collection').doc(item).update({
                 IsAssigned: true
             });
+
             Alert.alert("Success", "Guard has been Assigned to the Customer");
             SetIsAssignedButton(true);
         } catch (error) {
             console.log(error);
             Alert.alert("Error", "Failed to update guard details");
         }
+
+
+
     }
 
 

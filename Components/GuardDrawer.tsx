@@ -73,7 +73,7 @@ const GuardDrawer = ({ route, navigation }: GuardDrawerPageProps) => {
       );
     }}>
       <Drawer.Screen
-        name="GuardPage"
+        name="Guards"
         component={GuardPage}
         initialParams={{ UID_Key }}
         options={{
@@ -97,7 +97,7 @@ const GuardDrawer = ({ route, navigation }: GuardDrawerPageProps) => {
         }}
       />
       <Drawer.Screen
-        name="CustomerHomeScreen"
+        name="Customers"
         component={CustomerHomeScreen}
         initialParams={{ UID_Key }}
         options={{
