@@ -74,8 +74,6 @@ const CustomerHomeScreen = ({ route, navigation }: DetailsScreenProps) => {
         navigation.navigate("AssignGuards", { UID_Key: UID_Key, CUS_ID: ItemID });
     }
 
-
-
     return (
         <View style={styles.mainContainer}>
             <FlatList
@@ -86,7 +84,7 @@ const CustomerHomeScreen = ({ route, navigation }: DetailsScreenProps) => {
                         <View style={{ flexDirection: "row", flex: 1 }}>
                             <View style={styles.dataSide} >
                                 <TouchableOpacity onPress={() => {
-                                    SetItemID(item.id)
+
                                     HandleCustomerDetails(item.id)
                                 }}>
                                     <Text style={styles.cardText}>ID: {item ? item.id : "Loading"}</Text>
@@ -95,11 +93,16 @@ const CustomerHomeScreen = ({ route, navigation }: DetailsScreenProps) => {
                                 </TouchableOpacity>
                             </View>
 
-                            <View style={styles.iconView}>
-                                <TouchableOpacity onPress={() => { SetIsModalVisible(true) }}>
+
+                            <TouchableOpacity onPress={() => {
+                                SetItemID(item.id)
+                                SetIsModalVisible(true)
+                            }}>
+                                <View style={styles.iconView}>
                                     <Icon name="ellipsis-v" size={42} color="#000000" />
-                                </TouchableOpacity>
-                            </View>
+                                </View>
+                            </TouchableOpacity>
+
                         </View>
                     </View>
                 )}
@@ -168,11 +171,16 @@ const styles = StyleSheet.create({
         flex: 8,
         justifyContent: "center",
         paddingHorizontal: 20,
+        //backgroundColor: "#f7b2b2"
     },
     iconView: {
         flex: 2,
         justifyContent: "center",
         alignItems: "center",
+        //backgroundColor: "lightgreen",
+        padding: 30,
+        borderLeftColor: "#b3b3b3",
+        borderLeftWidth: 1,
     },
     buttonStyle: {
         width: 230,

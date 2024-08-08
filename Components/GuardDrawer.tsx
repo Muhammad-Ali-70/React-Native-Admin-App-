@@ -64,7 +64,7 @@ const GuardDrawer = ({ route, navigation }: GuardDrawerPageProps) => {
   }, [UID_Key]);
 
   return (
-    <Drawer.Navigator initialRouteName="Guards" drawerContent={props => {
+    <Drawer.Navigator initialRouteName="GuardPage" drawerContent={props => {
       return (
         <DrawerContentScrollView {...props}>
           <DrawerItemList {...props} />
@@ -73,7 +73,7 @@ const GuardDrawer = ({ route, navigation }: GuardDrawerPageProps) => {
       );
     }}>
       <Drawer.Screen
-        name="Guards"
+        name="GuardPage"
         component={GuardPage}
         initialParams={{ UID_Key }}
         options={{
@@ -97,7 +97,7 @@ const GuardDrawer = ({ route, navigation }: GuardDrawerPageProps) => {
         }}
       />
       <Drawer.Screen
-        name="Customers"
+        name="CustomerHomeScreen"
         component={CustomerHomeScreen}
         initialParams={{ UID_Key }}
         options={{

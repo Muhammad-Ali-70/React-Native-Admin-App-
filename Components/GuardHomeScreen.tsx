@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 
 type RootStackParamList = {
   Login: undefined;
@@ -34,7 +36,7 @@ function GuardPage({ route, navigation }: GuardHomeScreenProps) {
             ...doc.data()
           }));
 
-          console.log("Guards data in Guard HomeScreen:", guardsData);
+          //console.log("Guards data in Guard HomeScreen:", guardsData);
 
           SetGuardData(guardsData);
         }, error => {
@@ -67,9 +69,16 @@ function GuardPage({ route, navigation }: GuardHomeScreenProps) {
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => handleGuardDetails(item.id)}>
             <View style={styles.listcontainer}>
-              <Text style={styles.cardText}>ID: {item ? item.id : "Loading"}</Text>
-              <Text style={styles.cardText}>Name: {item ? item.GName : "Loading"}</Text>
-              <Text style={styles.cardTextFather}>Father Name: {item ? item.GFName : "Loading"}</Text>
+              <View style={styles.dataside}>
+                <Text style={styles.cardText}>ID: {item ? item.id : "Loading"}</Text>
+                <Text style={styles.cardText}>Name: {item ? item.GName : "Loading"}</Text>
+                <Text style={styles.cardTextFather}>Father Name: {item ? item.GFName : "Loading"}</Text>
+              </View>
+              <Text></Text>
+              <View style={styles.IconSide}>
+                {item.IsAssigned ? <Icon name="check" size={30} color="green" style={styles.iconStyle} /> : <Icon name="close" size={31} color="#f60505" style={styles.iconStyle} />}
+              </View>
+
             </View>
           </TouchableOpacity>
         )}
@@ -91,15 +100,36 @@ const styles = StyleSheet.create({
     padding: 15,
     width: "100%",
     borderRadius: 8,
+    flexDirection: "row",
   },
   cardText: {
-    fontSize: 20,
+    fontSize: 18,
     color: "black"
   },
   cardTextFather: {
-    fontSize: 16,
+    fontSize: 18,
     color: "black"
   },
+  dataside: {
+    //backgroundColor: "#ff00e6",
+    flex: 8
+  },
+  IconSide: {
+    //backgroundColor: "#80ff25",
+    flex: 2,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  iconStyle: {
+    backgroundColor: "#f1f1f1",
+    padding: 15,
+    borderRadius: 50,
+    width: 60,
+    height: 60,
+    textAlign: "center"
+
+
+  }
 });
 
 export default GuardPage;

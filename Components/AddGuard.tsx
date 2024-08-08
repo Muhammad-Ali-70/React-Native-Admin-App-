@@ -50,7 +50,7 @@ const AddGuard = ({ route, navigation }: AddGuardPageProps) => {
                     GSalary: Salary,
                     GPhone: Phone,
                     UserAccount: UID_Key,
-                    IsAssigned: true,
+                    IsAssigned: false,
                 });
 
             Alert.alert("Guard Added to Firebase!");
