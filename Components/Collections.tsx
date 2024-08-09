@@ -17,7 +17,7 @@ const data = [
     { label: 'Item 8', value: '8' },
 ];
 
-const Salaries = () => {
+const Collections = () => {
 
     const [value, setValue] = useState(null);
     const [isFocus, setIsFocus] = useState(false);
@@ -25,7 +25,7 @@ const Salaries = () => {
 
     return (
         <View style={styles.mainContainer}>
-            <Text style={styles.headtext}>Summary</Text>
+            <Text style={styles.headtext}>Collections</Text>
 
             <Dropdown
                 style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
@@ -99,7 +99,7 @@ const Salaries = () => {
     );
 };
 
-export default Salaries;
+export default Collections;
 
 const styles = StyleSheet.create({
     mainContainer: {

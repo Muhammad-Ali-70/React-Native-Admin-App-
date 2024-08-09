@@ -8,6 +8,7 @@ import auth from '@react-native-firebase/auth';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer'
 import CustomerHomeScreen from './CustomerHomeScreen';
 import Salaries from './Salaries';
+import Collections from './Collections';
 
 const Drawer = createDrawerNavigator();
 
@@ -69,7 +70,7 @@ const GuardDrawer = ({ route, navigation }: GuardDrawerPageProps) => {
       return (
         <DrawerContentScrollView {...props}>
           <DrawerItemList {...props} />
-          <DrawerItem label="Logout" onPress={handleSignOut} />
+          <DrawerItem label="Logout" onPress={handleSignOut} style={{ marginTop: "210%" }} />
         </DrawerContentScrollView>
       );
     }}>
@@ -121,6 +122,7 @@ const GuardDrawer = ({ route, navigation }: GuardDrawerPageProps) => {
           ),
         }}
       />
+
       <Drawer.Screen
         name="Salaries"
         component={Salaries}
@@ -135,7 +137,24 @@ const GuardDrawer = ({ route, navigation }: GuardDrawerPageProps) => {
           headerTitleAlign: "center",
         }}
       />
+      <Drawer.Screen
+        name="Collections"
+        component={Collections}
+        //initialParams={{ UID_Key }}
+        options={{
+          headerTitle: `Collections`,
+          headerTitleStyle: { fontSize: 18 },
+          headerStyle: {
+            backgroundColor: 'black',
+          },
+          headerTintColor: 'white',
+          headerTitleAlign: "center",
+        }}
+      />
+
     </Drawer.Navigator>
+
+
   );
 };
 
