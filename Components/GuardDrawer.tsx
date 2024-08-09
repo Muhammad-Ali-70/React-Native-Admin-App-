@@ -7,6 +7,7 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer'
 import CustomerHomeScreen from './CustomerHomeScreen';
+import Salaries from './Salaries';
 
 const Drawer = createDrawerNavigator();
 
@@ -118,6 +119,20 @@ const GuardDrawer = ({ route, navigation }: GuardDrawerPageProps) => {
               </TouchableOpacity>
             </View>
           ),
+        }}
+      />
+      <Drawer.Screen
+        name="Salaries"
+        component={Salaries}
+        //initialParams={{ UID_Key }}
+        options={{
+          headerTitle: `Salaries`,
+          headerTitleStyle: { fontSize: 18 },
+          headerStyle: {
+            backgroundColor: 'black',
+          },
+          headerTintColor: 'white',
+          headerTitleAlign: "center",
         }}
       />
     </Drawer.Navigator>
