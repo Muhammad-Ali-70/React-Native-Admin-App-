@@ -29,25 +29,9 @@ const data = [
 // export default Salaries
 
 
-// const styles = StyleSheet.create({
-//     mainContainer: {
-//         flex: 1,
-//         alignItems: "center",
-//         justifyContent: "center",
-//     },
-//     headtext: {
+const styles1 = StyleSheet.create({
 
-//     },
-//     dropdown: {
-//         fontSize: 18,
-//         width: "70%",
-//         height: 45,
-//         borderColor: "black",
-//         borderWidth: 1,
-//         borderRadius: 10,
-
-//     }
-// })
+})
 
 const Salaries = () => {
 
@@ -117,7 +101,7 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     placeholderStyle: {
-        color: "black",
+        //color: "black",
         fontSize: 16,
     },
     selectedTextStyle: {
