@@ -1,27 +1,96 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { TextInput } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PrimaryButton from './PrimaryButton';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import firestore from '@react-native-firebase/firestore';
 
+type RootStackParamList = {
+    Salaries: { UID_Key: string };
+}
 
-const data = [
-    { label: 'Item 1', value: '1' },
-    { label: 'Item 2', value: '2' },
-    { label: 'Item 3', value: '3' },
-    { label: 'Item 4', value: '4' },
-    { label: 'Item 5', value: '5' },
-    { label: 'Item 6', value: '6' },
-    { label: 'Item 7', value: '7' },
-    { label: 'Item 8', value: '8' },
-];
+type SalariesScreenProps = NativeStackScreenProps<RootStackParamList, 'Salaries'>;
 
-const Salaries = () => {
+const Salaries = ({ route }: SalariesScreenProps) => {
 
-    const [value, setValue] = useState(null);
+    const { UID_Key } = route.params;
+
+    const [value, setValue] = useState<string | null>(null);
     const [isFocus, setIsFocus] = useState(false);
+    const [textinputcollectedamount, SettextinputCollectedAmount] = useState("");
+    const [selectedGuardSalary, setSelectedGuardSalary] = useState<string | null>(null);
+    const [remainingAmount, setRemainingAmount] = useState<string | null>(null);
 
+    const [guardsData, setGuardsData] = useState<{ label: string, value: string, salary: string, remain_salary: string }[]>([]);
+
+    const fetchGuards = () => {
+        if (!UID_Key) {
+            console.log("UID_KEY is not available");
+            return;
+        }
+
+        const unsubscribe = firestore()
+            .collection('Add_Guard_Collection')
+            .where("UserAccount", '==', UID_Key)
+            .onSnapshot(querySnapshot => {
+                const snapdata = querySnapshot.docs.map(doc => ({
+                    label: doc.data().GName,
+                    value: doc.id,
+                    salary: doc.data().GSalary,
+                    remain_salary: doc.data().GRemainingAmount,
+                }));
+
+                setGuardsData(snapdata);
+            }, error => {
+                console.log("Firestore error:", error);
+            });
+
+        return unsubscribe;
+    };
+
+    useEffect(() => {
+        const unsubscribe = fetchGuards();
+
+        return () => {
+            if (unsubscribe) {
+                unsubscribe();
+            }
+        };
+    }, [UID_Key]);
+
+    const HandleSaveButton = async () => {
+        if (!value || !selectedGuardSalary || !remainingAmount) {
+            console.log("Incomplete data for saving");
+            return;
+        }
+
+        //const guardSalaryNum = Number(selectedGuardSalary);
+        const collectedAmountNum = Number(textinputcollectedamount);
+        const remainingAmountNum = Number(remainingAmount);
+
+        if (isNaN(remainingAmountNum) || isNaN(collectedAmountNum)) {
+            console.log("Invalid number conversion");
+            return;
+        }
+
+        const updatedRemainingAmount = remainingAmountNum - collectedAmountNum;
+        const updatedRemainingAmountStr = updatedRemainingAmount.toString();
+
+        try {
+            await firestore().collection("Add_Guard_Collection").doc(value).update({
+                GRemainingAmount: updatedRemainingAmountStr,
+            });
+
+            setRemainingAmount(updatedRemainingAmountStr); // Update UI
+            SettextinputCollectedAmount("")
+
+            console.log("Update successful");
+        } catch (error) {
+            console.log("Error updating Firestore:", error);
+        }
+    }
 
     return (
         <View style={styles.mainContainer}>
@@ -33,18 +102,21 @@ const Salaries = () => {
                 selectedTextStyle={styles.selectedTextStyle}
                 inputSearchStyle={styles.inputSearchStyle}
                 iconStyle={styles.iconStyle}
-                data={data}
+                data={guardsData}
                 search
                 maxHeight={300}
                 labelField="label"
                 valueField="value"
-                placeholder={!isFocus ? 'Select item' : '...'}
-                searchPlaceholder="Search..."
+                placeholder={!isFocus ? 'Select guard' : '...'}
+                searchPlaceholder="Search guard..."
+                activeColor='#e6e5e5'
                 value={value}
                 onFocus={() => setIsFocus(true)}
                 onBlur={() => setIsFocus(false)}
                 onChange={item => {
                     setValue(item.value);
+                    setSelectedGuardSalary(item.salary);
+                    setRemainingAmount(item.remain_salary);
                     setIsFocus(false);
                 }}
                 renderLeftIcon={() => (
@@ -58,22 +130,25 @@ const Salaries = () => {
             />
 
             <View style={styles.amountContainer}>
-
                 <Text style={styles.textHead}>Salary :
-                    <Text style={[styles.textHead, { color: "red" }]}> 6000</Text>
+                    <Text style={[styles.textHead, { color: "red" }]}> {selectedGuardSalary || 'N/A'}</Text>
                 </Text>
                 <Text style={styles.textHead}>Remaining Amount :
-                    <Text style={[styles.textHead, { color: "red" }]}> 6000</Text>
+                    <Text style={[styles.textHead, { color: "red" }]}> {remainingAmount || 'N/A'}</Text>
                 </Text>
                 <Text style={styles.textHead}>Total Amount to be paid :
-                    <Text style={[styles.textHead, { color: "red" }]}> 6000</Text>
+                    <Text style={[styles.textHead, { color: "red" }]}> {selectedGuardSalary || 'N/A'}</Text>
                 </Text>
 
-
                 <Text style={styles.heading2}>Collected Amount: </Text>
-                <TextInput style={styles.textInput} placeholder='Enter the amount'></TextInput>
+                <TextInput style={styles.textInput}
+                    placeholder='Enter the amount'
+                    keyboardType='numeric'
+                    value={textinputcollectedamount}
+                    onChangeText={(text) => SettextinputCollectedAmount(text)}
+                />
                 <Text style={styles.heading2}>Extra Amount: </Text>
-                <TextInput style={styles.textInput} placeholder='Enter the Tip Amount'></TextInput>
+                <TextInput style={styles.textInput} placeholder='Enter the Tip Amount' keyboardType='numeric' />
                 <Text style={styles.heading2}>Selected Date:</Text>
                 <Text style={styles.heading3}>Selected Date:</Text>
                 <Text style={styles.heading2}>Paid Month:</Text>
@@ -81,20 +156,13 @@ const Salaries = () => {
 
                 <View style={{ marginTop: 10 }}>
                     <View style={styles.button}>
-                        <PrimaryButton onPress={() => { }} text='Save & Print' textcolor='white' color='black' />
+                        <PrimaryButton onPress={HandleSaveButton} text='Save & Print' textcolor='white' color='black' />
                     </View>
                     <View style={styles.button}>
                         <PrimaryButton onPress={() => { }} text='Save' textcolor='white' color='black' />
                     </View>
-
                 </View>
-
             </View>
-
-
-
-
-
         </View>
     );
 };
@@ -104,8 +172,9 @@ export default Salaries;
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        margin: 25,
+        padding: 20,
         alignItems: "center",
+        backgroundColor: "white"
     },
     headtext: {
         fontSize: 25,
@@ -132,7 +201,7 @@ const styles = StyleSheet.create({
     },
     selectedTextStyle: {
         color: "black",
-        fontSize: 16,
+        fontSize: 18,
     },
     iconStyle: {
         width: 20,
@@ -141,7 +210,6 @@ const styles = StyleSheet.create({
     inputSearchStyle: {
         height: 40,
         fontSize: 16,
-        color: "black"
     },
     textHead: {
         marginTop: 1,
@@ -175,5 +243,4 @@ const styles = StyleSheet.create({
     button: {
         marginVertical: 10,
     }
-
 });

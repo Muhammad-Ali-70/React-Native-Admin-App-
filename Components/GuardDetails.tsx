@@ -65,6 +65,33 @@ function GuardDetails({ route, navigation }: GuardDetailsProps) {
         }
     };
 
+    const handleDeleteGuard = async () => {
+        Alert.alert(
+            "Confirm Delete",
+            "Are you sure you want to delete this guard?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            await firestore().collection('Add_Guard_Collection').doc(guardId).delete();
+                            Alert.alert("Deleted", "Guard has been deleted.");
+                            navigation.goBack(); // Navigate back after deletion
+                        } catch (error) {
+                            console.log(error);
+                            Alert.alert("Error", "Failed to delete guard");
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
     if (!guardData) {
         return (
             <View style={styles.container}>
@@ -77,14 +104,22 @@ function GuardDetails({ route, navigation }: GuardDetailsProps) {
         <SafeAreaView style={styles.container}>
             <View style={styles.topContainer}>
                 <Text style={styles.headtext}>Guard Details</Text>
-                <TouchableOpacity style={styles.editButton} onPress={() => setIsEditing(!isEditing)}>
-                    <Text style={[styles.headtext, { color: "blue" }]}>
-                        {isEditing ? 'Cancel' : 'Edit'}
-                    </Text>
-                </TouchableOpacity>
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.editButton} onPress={() => setIsEditing(!isEditing)}>
+                        <Text style={[styles.headtext, { color: "blue" }]}>
+                            {isEditing ? 'Cancel' : 'Edit'}
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteGuard}>
+                        <Text style={[styles.headtext, { color: "red" }]}>
+                            Delete
+                        </Text>
+                    </TouchableOpacity>
+                </View>
             </View>
             {isEditing ? (
                 <View>
+                    {/* Edit Mode: Guard Detail Inputs */}
                     <View style={styles.textInputContainer}>
                         <View style={styles.iconContainer}>
                             <Icon name="user" size={30} color="black" style={styles.icon} />
@@ -163,6 +198,7 @@ function GuardDetails({ route, navigation }: GuardDetailsProps) {
                 </View>
             ) : (
                 <View>
+                    {/* View Mode: Guard Details Display */}
                     <View style={styles.detaiscontainer}>
                         <View style={{ flexDirection: "row" }}>
                             <Text style={styles.detailstext}>Name: </Text>
@@ -212,9 +248,20 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: '#fff',
     },
+    buttonContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+    },
     editButton: {
         backgroundColor: "#d6d6d6",
-        paddingHorizontal: 25,
+        paddingHorizontal: 15,
+        paddingVertical: 5,
+        borderRadius: 10,
+        marginRight: 10,
+    },
+    deleteButton: {
+        backgroundColor: "#f8d7da",
+        paddingHorizontal: 15,
         paddingVertical: 5,
         borderRadius: 10,
     },
