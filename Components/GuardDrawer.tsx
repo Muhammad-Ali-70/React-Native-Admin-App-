@@ -153,8 +153,6 @@ const GuardDrawer = ({ route, navigation }: GuardDrawerPageProps) => {
       />
 
     </Drawer.Navigator>
-
-
   );
 };
 

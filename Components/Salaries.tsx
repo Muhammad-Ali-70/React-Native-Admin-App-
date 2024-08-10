@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { TextInput } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PrimaryButton from './PrimaryButton';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import firestore from '@react-native-firebase/firestore';
+import DatePicker from 'react-native-date-picker';
 
 type RootStackParamList = {
     Salaries: { UID_Key: string };
@@ -14,16 +15,34 @@ type RootStackParamList = {
 type SalariesScreenProps = NativeStackScreenProps<RootStackParamList, 'Salaries'>;
 
 const Salaries = ({ route }: SalariesScreenProps) => {
-
     const { UID_Key } = route.params;
 
+    const Template = "WW-G-";
+    const [payIdValue, setPayIdValue] = useState(0);
+    const [date, setDate] = useState(new Date());
+    const [open, setOpen] = useState(false);
+    const [paid_date, setPaidDate] = useState(new Date());
+    const [paid_open, setPaidOpen] = useState(false);
     const [value, setValue] = useState<string | null>(null);
     const [isFocus, setIsFocus] = useState(false);
-    const [textinputcollectedamount, SettextinputCollectedAmount] = useState("");
+    const [collectedAmount, setCollectedAmount] = useState("");
+    const [extraAmount, setExtraAmount] = useState("");
     const [selectedGuardSalary, setSelectedGuardSalary] = useState<string | null>(null);
     const [remainingAmount, setRemainingAmount] = useState<string | null>(null);
+    const [totalAmountToBePaid, setTotalAmountToBePaid] = useState<string | null>(null);
+    const [formattedDate, setFormattedDate] = useState<string | null>(null);
+    const [formattedPaidMonth, setFormattedPaidMonth] = useState<string | null>(null);
+    const [guardsData, setGuardsData] = useState<{ label: string, value: string, salary: string, remain_salary: string, Total_Amount: string }[]>([]);
 
-    const [guardsData, setGuardsData] = useState<{ label: string, value: string, salary: string, remain_salary: string }[]>([]);
+    useEffect(() => {
+        const unsubscribe = fetchGuards();
+        return () => unsubscribe && unsubscribe();
+    }, [UID_Key]);
+
+    useEffect(() => {
+        // Reset all state variables when the component mounts or UID_Key changes
+        resetForm();
+    }, [UID_Key]);
 
     const fetchGuards = () => {
         if (!UID_Key) {
@@ -40,8 +59,8 @@ const Salaries = ({ route }: SalariesScreenProps) => {
                     value: doc.id,
                     salary: doc.data().GSalary,
                     remain_salary: doc.data().GRemainingAmount,
+                    Total_Amount: doc.data().Total_tobe_paid,
                 }));
-
                 setGuardsData(snapdata);
             }, error => {
                 console.log("Firestore error:", error);
@@ -50,47 +69,67 @@ const Salaries = ({ route }: SalariesScreenProps) => {
         return unsubscribe;
     };
 
-    useEffect(() => {
-        const unsubscribe = fetchGuards();
+    const resetForm = () => {
+        setValue(null);
+        setCollectedAmount("");
+        setExtraAmount("");
+        setFormattedDate(null);
+        setFormattedPaidMonth(null);
+        setSelectedGuardSalary(null);
+        setRemainingAmount(null);
+        setTotalAmountToBePaid(null);
+        setIsFocus(false);
+    };
 
-        return () => {
-            if (unsubscribe) {
-                unsubscribe();
-            }
-        };
-    }, [UID_Key]);
-
-    const HandleSaveButton = async () => {
-        if (!value || !selectedGuardSalary || !remainingAmount) {
-            console.log("Incomplete data for saving");
+    const handleSave = async () => {
+        if (!value || !collectedAmount || !extraAmount || !formattedDate || !formattedPaidMonth) {
+            Alert.alert("Please fill in all fields.");
             return;
         }
 
-        //const guardSalaryNum = Number(selectedGuardSalary);
-        const collectedAmountNum = Number(textinputcollectedamount);
+        const collectedAmountNum = Number(collectedAmount);
         const remainingAmountNum = Number(remainingAmount);
+        const selectedGuardSalaryNum = Number(selectedGuardSalary);
 
-        if (isNaN(remainingAmountNum) || isNaN(collectedAmountNum)) {
-            console.log("Invalid number conversion");
+        if (isNaN(collectedAmountNum) || isNaN(remainingAmountNum) || isNaN(selectedGuardSalaryNum)) {
+            Alert.alert("Please enter valid numeric values.");
             return;
         }
 
         const updatedRemainingAmount = remainingAmountNum - collectedAmountNum;
-        const updatedRemainingAmountStr = updatedRemainingAmount.toString();
+        const updatedTotalAmount = selectedGuardSalaryNum + updatedRemainingAmount;
 
         try {
             await firestore().collection("Add_Guard_Collection").doc(value).update({
-                GRemainingAmount: updatedRemainingAmountStr,
+                GRemainingAmount: updatedRemainingAmount.toString(),
+                Total_tobe_paid: updatedTotalAmount.toString()
             });
 
-            setRemainingAmount(updatedRemainingAmountStr); // Update UI
-            SettextinputCollectedAmount("")
+            await firestore().collection('All_Salaries').add({
+                S_date: formattedDate,
+                S_extraAmount: extraAmount,
+                S_guardName: guardsData.find(g => g.value === value)?.label || '',
+                S_guardID: value,
+                S_payID: Template + String(payIdValue).padStart(4, '0'),
+                S_Salary: selectedGuardSalary,
+                S_SalaryMonth: formattedPaidMonth,
+                S_TotalAmount: updatedTotalAmount.toString(),
+            });
 
-            console.log("Update successful");
+            setPayIdValue(prevValue => prevValue + 1);
+
+            resetForm();
+
+            Alert.alert("Data saved successfully!");
         } catch (error) {
-            console.log("Error updating Firestore:", error);
+            console.log("Error saving data:", error);
+            Alert.alert("An error occurred while saving the data.");
         }
-    }
+    };
+
+    const formatDate = (date: Date, options: Intl.DateTimeFormatOptions) => {
+        return date.toLocaleDateString('en-US', options).replace(',', '');
+    };
 
     return (
         <View style={styles.mainContainer}>
@@ -117,6 +156,7 @@ const Salaries = ({ route }: SalariesScreenProps) => {
                     setValue(item.value);
                     setSelectedGuardSalary(item.salary);
                     setRemainingAmount(item.remain_salary);
+                    setTotalAmountToBePaid((Number(item.salary) + Number(item.remain_salary)).toString());
                     setIsFocus(false);
                 }}
                 renderLeftIcon={() => (
@@ -130,37 +170,68 @@ const Salaries = ({ route }: SalariesScreenProps) => {
             />
 
             <View style={styles.amountContainer}>
-                <Text style={styles.textHead}>Salary :
-                    <Text style={[styles.textHead, { color: "red" }]}> {selectedGuardSalary || 'N/A'}</Text>
-                </Text>
-                <Text style={styles.textHead}>Remaining Amount :
-                    <Text style={[styles.textHead, { color: "red" }]}> {remainingAmount || 'N/A'}</Text>
-                </Text>
-                <Text style={styles.textHead}>Total Amount to be paid :
-                    <Text style={[styles.textHead, { color: "red" }]}> {selectedGuardSalary || 'N/A'}</Text>
-                </Text>
+                <Text style={styles.textHead}>Salary: <Text style={{ color: "red" }}>{selectedGuardSalary || 'N/A'}</Text></Text>
+                <Text style={styles.textHead}>Remaining Amount: <Text style={{ color: "red" }}>{remainingAmount || 'N/A'}</Text></Text>
+                <Text style={styles.textHead}>Total Amount to be paid: <Text style={{ color: "red" }}>{totalAmountToBePaid || 'N/A'}</Text></Text>
 
-                <Text style={styles.heading2}>Collected Amount: </Text>
-                <TextInput style={styles.textInput}
+                <Text style={styles.heading2}>Collected Amount:</Text>
+                <TextInput
+                    style={styles.textInput}
                     placeholder='Enter the amount'
                     keyboardType='numeric'
-                    value={textinputcollectedamount}
-                    onChangeText={(text) => SettextinputCollectedAmount(text)}
+                    value={collectedAmount}
+                    onChangeText={setCollectedAmount}
                 />
-                <Text style={styles.heading2}>Extra Amount: </Text>
-                <TextInput style={styles.textInput} placeholder='Enter the Tip Amount' keyboardType='numeric' />
-                <Text style={styles.heading2}>Selected Date:</Text>
-                <Text style={styles.heading3}>Selected Date:</Text>
-                <Text style={styles.heading2}>Paid Month:</Text>
-                <Text style={styles.heading3}>Selected Date:</Text>
+
+                <Text style={styles.heading2}>Extra Amount:</Text>
+                <TextInput
+                    style={styles.textInput}
+                    placeholder='Enter the amount'
+                    keyboardType='numeric'
+                    value={extraAmount}
+                    onChangeText={setExtraAmount}
+                />
+
+                <TouchableOpacity onPress={() => setOpen(true)}>
+                    <Text style={[styles.heading2, { color: "blue" }]}>Select Date:</Text>
+                </TouchableOpacity>
+                <DatePicker
+                    modal
+                    open={open}
+                    date={date}
+                    mode='date'
+                    onConfirm={(date) => {
+                        setOpen(false);
+                        setDate(date);
+                        setFormattedDate(formatDate(date, { month: 'short', day: '2-digit', year: 'numeric' }));
+                    }}
+                    onCancel={() => setOpen(false)}
+                />
+                <Text style={styles.heading3}>{formattedDate}</Text>
+
+                <TouchableOpacity onPress={() => setPaidOpen(true)}>
+                    <Text style={[styles.heading2, { color: "blue" }]}>Paid Month:</Text>
+                </TouchableOpacity>
+                <DatePicker
+                    modal
+                    open={paid_open}
+                    date={paid_date}
+                    mode='date'
+                    onConfirm={(date) => {
+                        setPaidOpen(false);
+                        setPaidDate(date);
+                        setFormattedPaidMonth(formatDate(date, { month: 'long', year: 'numeric' }));
+                    }}
+                    onCancel={() => setPaidOpen(false)}
+                />
+                <Text style={styles.heading3}>{formattedPaidMonth}</Text>
+
+                <View style={{ marginTop: 20 }}>
+                    <PrimaryButton onPress={handleSave} text='Save' color='black' textcolor='white' />
+                </View>
 
                 <View style={{ marginTop: 10 }}>
-                    <View style={styles.button}>
-                        <PrimaryButton onPress={HandleSaveButton} text='Save & Print' textcolor='white' color='black' />
-                    </View>
-                    <View style={styles.button}>
-                        <PrimaryButton onPress={() => { }} text='Save' textcolor='white' color='black' />
-                    </View>
+                    <PrimaryButton onPress={handleSave} text='Save & Print' color='black' textcolor='white' />
                 </View>
             </View>
         </View>
@@ -172,17 +243,15 @@ export default Salaries;
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        padding: 20,
-        alignItems: "center",
-        backgroundColor: "white"
+        paddingTop: 10,
+        backgroundColor: "white",
+        alignItems: 'center',
     },
     headtext: {
-        fontSize: 25,
-        fontStyle: "normal",
-        fontWeight: "bold",
+        marginVertical: 30,
+        fontSize: 20,
         color: "black",
-        marginTop: 15,
-        marginBottom: 23,
+        fontWeight: "bold",
     },
     dropdown: {
         height: 50,
@@ -239,8 +308,6 @@ const styles = StyleSheet.create({
     heading3: {
         fontSize: 16,
         color: "black",
-    },
-    button: {
-        marginVertical: 10,
+        marginBottom: 5,
     }
 });
