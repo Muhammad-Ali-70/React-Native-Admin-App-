@@ -44,7 +44,8 @@ const AddCustomer = ({ route, navigation }: AddCustomerScreenProps) => {
                 CAgreeAmount: CustomerAgreementAmount,
                 CPhone: CustomerPhone,
                 UserAccount: UID_Key,
-                //AssignedGuards: [],
+                CustomerRemainingAmount: CustomerAgreementAmount,
+                CustomerTotalAmount: CustomerAgreementAmount,
             })
             Alert.alert("Successfull", "Customer has been added to the Database!");
 

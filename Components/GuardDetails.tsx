@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, SafeAreaView, FlatList } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -14,13 +14,15 @@ function GuardDetails({ route, navigation }: GuardDetailsProps) {
     const { guardId } = route.params;
     const [guardData, setGuardData] = useState<any>(null);
     const [isEditing, setIsEditing] = useState<boolean>(false);
-
     const [GuardName, SetguardName] = useState<string>('');
     const [FatherName, SetFatherName] = useState<string>('');
     const [CNIC, SetCNIC] = useState<string>('');
     const [Address, SetAddress] = useState<string>('');
     const [Salary, SetSalary] = useState<string>('');
     const [Phone, Setphone] = useState<string>('');
+
+    const [SalaryData, SetSalaryData] = useState<any[]>([]);
+
 
     const fetchGuardDetails = async () => {
         try {
@@ -42,8 +44,29 @@ function GuardDetails({ route, navigation }: GuardDetailsProps) {
         }
     };
 
+
+    const fetchSalaryData = async () => {
+
+        const unsubscribe = firestore()
+            .collection("All_Salaries")
+            .orderBy("Guard_Pay_ID", "asc")
+            .where("Gaurd_ID", '==', guardId)
+            .onSnapshot(querySnapshot => {
+                const customData = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                SetSalaryData(customData);
+
+            }, error => {
+                console.log("Firestore error:", error);
+            });
+    };
+
     useEffect(() => {
         fetchGuardDetails();
+        fetchSalaryData();
     }, []);
 
     const handleUpdateDetails = async () => {
@@ -58,7 +81,7 @@ function GuardDetails({ route, navigation }: GuardDetailsProps) {
             });
             Alert.alert("Success", "Guard details updated successfully");
             setIsEditing(false);
-            fetchGuardDetails(); // Refresh guard details after update
+            fetchGuardDetails();
         } catch (error) {
             console.log(error);
             Alert.alert("Error", "Failed to update guard details");
@@ -229,13 +252,39 @@ function GuardDetails({ route, navigation }: GuardDetailsProps) {
                             <Text style={styles.dataText}>{guardData.GSalary}</Text>
                         </View>
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10, }}>
                         <View style={styles.dividerLine} />
                         <View>
                             <Text style={styles.dividerHeading}>Salaries</Text>
                         </View>
                         <View style={styles.dividerLine} />
                     </View>
+                    <FlatList
+                        data={SalaryData}
+                        keyExtractor={(item) => item.id}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity onPress={
+                                // () => handleGuardDetails(item.id)
+                                () => { }
+                            }>
+                                <View style={styles.listcontainer}>
+                                    <View style={styles.dataside}>
+                                        <Text style={styles.cardText}>ID :
+                                            <Text style={{ fontWeight: "bold" }}> {item.Guard_Pay_ID}</Text></Text>
+                                        <Text style={styles.cardText}>Paid Month :
+                                            <Text style={{ fontWeight: "bold" }}> {item.Guard_Paid_Month}</Text></Text>
+                                        <Text style={styles.cardText}>Amount Paid :
+                                            <Text style={{ fontWeight: "bold" }}> {item.AmountPaid}</Text></Text>
+                                        <Text style={styles.cardText}>Remaining Amount :
+                                            <Text style={{ fontWeight: "bold" }}> {item.RemainingAmount}</Text></Text>
+                                    </View>
+                                    <View style={styles.IconSide}>
+                                        <Icon name="ellipsis-v" size={40} color="#000000" />
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        )}
+                    />
                 </View>
             )}
         </SafeAreaView>
@@ -246,7 +295,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#fff',
+        backgroundColor: '#ededed',
     },
     buttonContainer: {
         flexDirection: "row",
@@ -336,6 +385,36 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
+    cardText: {
+        fontSize: 16,
+        color: "black",
+        marginVertical: 3,
+
+    },
+    listcontainer: {
+        backgroundColor: "#ffffff",
+        flex: 1,
+        flexDirection: "row",
+        borderRadius: 8,
+        padding: 10,
+        justifyContent: "space-around",
+        alignItems: "center",
+        paddingLeft: 20,
+    },
+    dataside: {
+        // backgroundColor: "lightgreen",
+        flex: 8,
+
+    },
+    IconSide: {
+        // backgroundColor: "lightblue",
+        flex: 2,
+        alignItems: "center",
+    },
+    iconStyle: {
+
+
+    }
 });
 
 export default GuardDetails;

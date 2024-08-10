@@ -100,20 +100,25 @@ const Salaries = ({ route }: SalariesScreenProps) => {
         const updatedTotalAmount = selectedGuardSalaryNum + updatedRemainingAmount;
 
         try {
-            await firestore().collection("Add_Guard_Collection").doc(value).update({
-                GRemainingAmount: updatedRemainingAmount.toString(),
-                Total_tobe_paid: updatedTotalAmount.toString()
+
+
+            const respose = await firestore().collection('All_Salaries').add({
+                S_Date: formattedDate,
+                ExtraAmount: extraAmount,
+                GuardName: guardsData.find(g => g.value === value)?.label || '',
+                Gaurd_ID: value,
+                Guard_Pay_ID: Template + String(payIdValue).padStart(4, '0'),
+                Guard_Salary: selectedGuardSalary,
+                Guard_Paid_Month: formattedPaidMonth,
+                Guard_TotalAmount: updatedTotalAmount.toString(),
+                AmountPaid: collectedAmountNum.toString(),
+                RemainingAmount: updatedRemainingAmount.toString(),
             });
 
-            await firestore().collection('All_Salaries').add({
-                S_date: formattedDate,
-                S_extraAmount: extraAmount,
-                S_guardName: guardsData.find(g => g.value === value)?.label || '',
-                S_guardID: value,
-                S_payID: Template + String(payIdValue).padStart(4, '0'),
-                S_Salary: selectedGuardSalary,
-                S_SalaryMonth: formattedPaidMonth,
-                S_TotalAmount: updatedTotalAmount.toString(),
+            await firestore().collection("Add_Guard_Collection").doc(value).update({
+                GRemainingAmount: updatedRemainingAmount.toString(),
+                Total_tobe_paid: updatedTotalAmount.toString(),
+                Salaries_IDs: firestore.FieldValue.arrayUnion(respose._documentPath._parts[1]),
             });
 
             setPayIdValue(prevValue => prevValue + 1);

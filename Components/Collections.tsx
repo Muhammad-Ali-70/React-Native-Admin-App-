@@ -17,7 +17,7 @@ type CollectionScreenProps = NativeStackScreenProps<RootStackParamList, 'Collect
 const Collections = ({ route }: CollectionScreenProps) => {
     const { UID_Key } = route.params;
 
-    const Template = "WW-G-";
+    const Template = "WW-U-";
     const [payIdValue, setPayIdValue] = useState(0);
     const [date, setDate] = useState(new Date());
     const [open, setOpen] = useState(false);
@@ -27,7 +27,7 @@ const Collections = ({ route }: CollectionScreenProps) => {
     const [isFocus, setIsFocus] = useState(false);
     const [collectedAmount, setCollectedAmount] = useState("");
     const [extraAmount, setExtraAmount] = useState("");
-    const [selectedGuardSalary, setSelectedGuardSalary] = useState<string | null>(null);
+    const [SelectedCustomerAgreement, setSelectedCustomerAgreement] = useState<string | null>(null);
     const [remainingAmount, setRemainingAmount] = useState<string | null>(null);
     const [totalAmountToBePaid, setTotalAmountToBePaid] = useState<string | null>(null);
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
@@ -51,15 +51,15 @@ const Collections = ({ route }: CollectionScreenProps) => {
         }
 
         const unsubscribe = firestore()
-            .collection('Add_Guard_Collection')
+            .collection('Add_Customer_Collection')
             .where("UserAccount", '==', UID_Key)
             .onSnapshot(querySnapshot => {
                 const snapdata = querySnapshot.docs.map(doc => ({
-                    label: doc.data().GName,
+                    label: doc.data().CName,
                     value: doc.id,
-                    salary: doc.data().GSalary,
-                    remain_salary: doc.data().GRemainingAmount,
-                    Total_Amount: doc.data().Total_tobe_paid,
+                    salary: doc.data().CAgreeAmount,
+                    remain_salary: doc.data().CustomerRemainingAmount,
+                    Total_Amount: doc.data().CustomerAgreementAmount,
                 }));
                 setGuardsData(snapdata);
             }, error => {
@@ -75,7 +75,7 @@ const Collections = ({ route }: CollectionScreenProps) => {
         setExtraAmount("");
         setFormattedDate(null);
         setFormattedPaidMonth(null);
-        setSelectedGuardSalary(null);
+        setSelectedCustomerAgreement(null);
         setRemainingAmount(null);
         setTotalAmountToBePaid(null);
         setIsFocus(false);
@@ -89,31 +89,31 @@ const Collections = ({ route }: CollectionScreenProps) => {
 
         const collectedAmountNum = Number(collectedAmount);
         const remainingAmountNum = Number(remainingAmount);
-        const selectedGuardSalaryNum = Number(selectedGuardSalary);
+        const SelectedCustomerAgreementNum = Number(SelectedCustomerAgreement);
 
-        if (isNaN(collectedAmountNum) || isNaN(remainingAmountNum) || isNaN(selectedGuardSalaryNum)) {
+        if (isNaN(collectedAmountNum) || isNaN(remainingAmountNum) || isNaN(SelectedCustomerAgreementNum)) {
             Alert.alert("Please enter valid numeric values.");
             return;
         }
 
         const updatedRemainingAmount = remainingAmountNum - collectedAmountNum;
-        const updatedTotalAmount = selectedGuardSalaryNum + updatedRemainingAmount;
+        const updatedTotalAmount = SelectedCustomerAgreementNum + updatedRemainingAmount;
 
         try {
-            await firestore().collection("Add_Guard_Collection").doc(value).update({
-                GRemainingAmount: updatedRemainingAmount.toString(),
-                Total_tobe_paid: updatedTotalAmount.toString()
+            await firestore().collection("Add_Customer_Collection").doc(value).update({
+                CustomerRemainingAmount: updatedRemainingAmount.toString(),
+                CustomerTotalAmount: updatedTotalAmount.toString()
             });
 
             await firestore().collection('All_Salaries').add({
-                S_date: formattedDate,
-                S_extraAmount: extraAmount,
-                S_guardName: guardsData.find(g => g.value === value)?.label || '',
-                S_guardID: value,
-                S_payID: Template + String(payIdValue).padStart(4, '0'),
-                S_Salary: selectedGuardSalary,
-                S_SalaryMonth: formattedPaidMonth,
-                S_TotalAmount: updatedTotalAmount.toString(),
+                C_Date: formattedDate,
+                Extra_Amount: extraAmount,
+                CustomerName: guardsData.find(g => g.value === value)?.label || '',
+                Customer_ID: value,
+                Customer_Pay_ID: Template + String(payIdValue).padStart(4, '0'),
+                Customer_AgreementAmount: SelectedCustomerAgreement,
+                Customer_Paid_Month: formattedPaidMonth,
+                Customer_TotalAmount: updatedTotalAmount.toString(),
             });
 
             setPayIdValue(prevValue => prevValue + 1);
@@ -154,7 +154,7 @@ const Collections = ({ route }: CollectionScreenProps) => {
                 onBlur={() => setIsFocus(false)}
                 onChange={item => {
                     setValue(item.value);
-                    setSelectedGuardSalary(item.salary);
+                    setSelectedCustomerAgreement(item.salary);
                     setRemainingAmount(item.remain_salary);
                     setTotalAmountToBePaid((Number(item.salary) + Number(item.remain_salary)).toString());
                     setIsFocus(false);
@@ -170,7 +170,7 @@ const Collections = ({ route }: CollectionScreenProps) => {
             />
 
             <View style={styles.amountContainer}>
-                <Text style={styles.textHead}>Salary: <Text style={{ color: "red" }}>{selectedGuardSalary || 'N/A'}</Text></Text>
+                <Text style={styles.textHead}>Salary: <Text style={{ color: "red" }}>{SelectedCustomerAgreement || 'N/A'}</Text></Text>
                 <Text style={styles.textHead}>Remaining Amount: <Text style={{ color: "red" }}>{remainingAmount || 'N/A'}</Text></Text>
                 <Text style={styles.textHead}>Total Amount to be paid: <Text style={{ color: "red" }}>{totalAmountToBePaid || 'N/A'}</Text></Text>
 
