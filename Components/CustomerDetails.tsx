@@ -77,17 +77,49 @@ const CustomerDetails = ({ route, navigation }: DetailsScreenProps) => {
             </View>
         );
     }
-
+    const handleDeleteCustomer = async () => {
+        Alert.alert(
+            "Confirm Delete",
+            "Are you sure you want to delete this guard?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            await firestore().collection('Add_Customer_Collection').doc(CustomerID).delete();
+                            Alert.alert("Deleted", "Guard has been deleted.");
+                            navigation.goBack();
+                        } catch (error) {
+                            console.log(error);
+                            Alert.alert("Error", "Failed to delete guard");
+                        }
+                    }
+                }
+            ]
+        );
+    };
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.topContainer}>
                 <Text style={styles.headtext}>Customer Details</Text>
-                <TouchableOpacity style={styles.editButton} onPress={() => setIsEditing(!isEditing)}>
-                    <Text style={[styles.headtext, { color: "blue" }]}>
-                        {isEditing ? 'Cancel' : 'Edit'}
-                    </Text>
-                </TouchableOpacity>
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.editButton} onPress={() => setIsEditing(!isEditing)}>
+                        <Text style={[styles.headtext, { color: "blue" }]}>
+                            {isEditing ? 'Cancel' : 'Edit'}
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteCustomer}>
+                        <Text style={[styles.headtext, { color: "red" }]}>
+                            Delete
+                        </Text>
+                    </TouchableOpacity>
+                </View>
             </View>
             {isEditing ? (
                 <View>
@@ -221,9 +253,20 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: '#fff',
     },
+    buttonContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+    },
     editButton: {
         backgroundColor: "#d6d6d6",
-        paddingHorizontal: 25,
+        paddingHorizontal: 15,
+        paddingVertical: 5,
+        borderRadius: 10,
+        marginRight: 10,
+    },
+    deleteButton: {
+        backgroundColor: "#f8d7da",
+        paddingHorizontal: 15,
         paddingVertical: 5,
         borderRadius: 10,
     },
@@ -244,12 +287,12 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     detailstext: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: "bold",
         color: "black",
     },
     dataText: {
-        fontSize: 16,
+        fontSize: 15,
         color: "black",
     },
     dividerHeading: {
@@ -299,3 +342,4 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 });
+

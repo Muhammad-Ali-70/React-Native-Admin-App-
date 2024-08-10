@@ -1,31 +1,139 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { TextInput } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PrimaryButton from './PrimaryButton';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import firestore from '@react-native-firebase/firestore';
+import DatePicker from 'react-native-date-picker';
 
+type RootStackParamList = {
+    Collections: { UID_Key: string };
+}
 
-const data = [
-    { label: 'Item 1', value: '1' },
-    { label: 'Item 2', value: '2' },
-    { label: 'Item 3', value: '3' },
-    { label: 'Item 4', value: '4' },
-    { label: 'Item 5', value: '5' },
-    { label: 'Item 6', value: '6' },
-    { label: 'Item 7', value: '7' },
-    { label: 'Item 8', value: '8' },
-];
+type CollectionScreenProps = NativeStackScreenProps<RootStackParamList, 'Collections'>;
 
-const Collections = () => {
+const Collections = ({ route }: CollectionScreenProps) => {
+    const { UID_Key } = route.params;
 
-    const [value, setValue] = useState(null);
+    const Template = "WW-G-";
+    const [payIdValue, setPayIdValue] = useState(0);
+    const [date, setDate] = useState(new Date());
+    const [open, setOpen] = useState(false);
+    const [paid_date, setPaidDate] = useState(new Date());
+    const [paid_open, setPaidOpen] = useState(false);
+    const [value, setValue] = useState<string | null>(null);
     const [isFocus, setIsFocus] = useState(false);
+    const [collectedAmount, setCollectedAmount] = useState("");
+    const [extraAmount, setExtraAmount] = useState("");
+    const [selectedGuardSalary, setSelectedGuardSalary] = useState<string | null>(null);
+    const [remainingAmount, setRemainingAmount] = useState<string | null>(null);
+    const [totalAmountToBePaid, setTotalAmountToBePaid] = useState<string | null>(null);
+    const [formattedDate, setFormattedDate] = useState<string | null>(null);
+    const [formattedPaidMonth, setFormattedPaidMonth] = useState<string | null>(null);
+    const [guardsData, setGuardsData] = useState<{ label: string, value: string, salary: string, remain_salary: string, Total_Amount: string }[]>([]);
 
+    useEffect(() => {
+        const unsubscribe = fetchGuards();
+        return () => unsubscribe && unsubscribe();
+    }, [UID_Key]);
+
+    useEffect(() => {
+        // Reset all state variables when the component mounts or UID_Key changes
+        resetForm();
+    }, [UID_Key]);
+
+    const fetchGuards = () => {
+        if (!UID_Key) {
+            console.log("UID_KEY is not available");
+            return;
+        }
+
+        const unsubscribe = firestore()
+            .collection('Add_Guard_Collection')
+            .where("UserAccount", '==', UID_Key)
+            .onSnapshot(querySnapshot => {
+                const snapdata = querySnapshot.docs.map(doc => ({
+                    label: doc.data().GName,
+                    value: doc.id,
+                    salary: doc.data().GSalary,
+                    remain_salary: doc.data().GRemainingAmount,
+                    Total_Amount: doc.data().Total_tobe_paid,
+                }));
+                setGuardsData(snapdata);
+            }, error => {
+                console.log("Firestore error:", error);
+            });
+
+        return unsubscribe;
+    };
+
+    const resetForm = () => {
+        setValue(null);
+        setCollectedAmount("");
+        setExtraAmount("");
+        setFormattedDate(null);
+        setFormattedPaidMonth(null);
+        setSelectedGuardSalary(null);
+        setRemainingAmount(null);
+        setTotalAmountToBePaid(null);
+        setIsFocus(false);
+    };
+
+    const handleSave = async () => {
+        if (!value || !collectedAmount || !extraAmount || !formattedDate || !formattedPaidMonth) {
+            Alert.alert("Please fill in all fields.");
+            return;
+        }
+
+        const collectedAmountNum = Number(collectedAmount);
+        const remainingAmountNum = Number(remainingAmount);
+        const selectedGuardSalaryNum = Number(selectedGuardSalary);
+
+        if (isNaN(collectedAmountNum) || isNaN(remainingAmountNum) || isNaN(selectedGuardSalaryNum)) {
+            Alert.alert("Please enter valid numeric values.");
+            return;
+        }
+
+        const updatedRemainingAmount = remainingAmountNum - collectedAmountNum;
+        const updatedTotalAmount = selectedGuardSalaryNum + updatedRemainingAmount;
+
+        try {
+            await firestore().collection("Add_Guard_Collection").doc(value).update({
+                GRemainingAmount: updatedRemainingAmount.toString(),
+                Total_tobe_paid: updatedTotalAmount.toString()
+            });
+
+            await firestore().collection('All_Salaries').add({
+                S_date: formattedDate,
+                S_extraAmount: extraAmount,
+                S_guardName: guardsData.find(g => g.value === value)?.label || '',
+                S_guardID: value,
+                S_payID: Template + String(payIdValue).padStart(4, '0'),
+                S_Salary: selectedGuardSalary,
+                S_SalaryMonth: formattedPaidMonth,
+                S_TotalAmount: updatedTotalAmount.toString(),
+            });
+
+            setPayIdValue(prevValue => prevValue + 1);
+
+            resetForm();
+
+            Alert.alert("Data saved successfully!");
+        } catch (error) {
+            console.log("Error saving data:", error);
+            Alert.alert("An error occurred while saving the data.");
+        }
+    };
+
+    const formatDate = (date: Date, options: Intl.DateTimeFormatOptions) => {
+        return date.toLocaleDateString('en-US', options).replace(',', '');
+    };
 
     return (
         <View style={styles.mainContainer}>
-            <Text style={styles.headtext}>Collections</Text>
+            <Text style={styles.headtext}>Summary</Text>
 
             <Dropdown
                 style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
@@ -33,18 +141,22 @@ const Collections = () => {
                 selectedTextStyle={styles.selectedTextStyle}
                 inputSearchStyle={styles.inputSearchStyle}
                 iconStyle={styles.iconStyle}
-                data={data}
+                data={guardsData}
                 search
                 maxHeight={300}
                 labelField="label"
                 valueField="value"
-                placeholder={!isFocus ? 'Select item' : '...'}
-                searchPlaceholder="Search..."
+                placeholder={!isFocus ? 'Select guard' : '...'}
+                searchPlaceholder="Search guard..."
+                activeColor='#e6e5e5'
                 value={value}
                 onFocus={() => setIsFocus(true)}
                 onBlur={() => setIsFocus(false)}
                 onChange={item => {
                     setValue(item.value);
+                    setSelectedGuardSalary(item.salary);
+                    setRemainingAmount(item.remain_salary);
+                    setTotalAmountToBePaid((Number(item.salary) + Number(item.remain_salary)).toString());
                     setIsFocus(false);
                 }}
                 renderLeftIcon={() => (
@@ -58,43 +170,70 @@ const Collections = () => {
             />
 
             <View style={styles.amountContainer}>
+                <Text style={styles.textHead}>Salary: <Text style={{ color: "red" }}>{selectedGuardSalary || 'N/A'}</Text></Text>
+                <Text style={styles.textHead}>Remaining Amount: <Text style={{ color: "red" }}>{remainingAmount || 'N/A'}</Text></Text>
+                <Text style={styles.textHead}>Total Amount to be paid: <Text style={{ color: "red" }}>{totalAmountToBePaid || 'N/A'}</Text></Text>
 
-                <Text style={styles.textHead}>Salary :
-                    <Text style={[styles.textHead, { color: "red" }]}> 6000</Text>
-                </Text>
-                <Text style={styles.textHead}>Remaining Amount :
-                    <Text style={[styles.textHead, { color: "red" }]}> 6000</Text>
-                </Text>
-                <Text style={styles.textHead}>Total Amount to be paid :
-                    <Text style={[styles.textHead, { color: "red" }]}> 6000</Text>
-                </Text>
+                <Text style={styles.heading2}>Collected Amount:</Text>
+                <TextInput
+                    style={styles.textInput}
+                    placeholder='Enter the amount'
+                    keyboardType='numeric'
+                    value={collectedAmount}
+                    onChangeText={setCollectedAmount}
+                />
 
+                <Text style={styles.heading2}>Extra Amount:</Text>
+                <TextInput
+                    style={styles.textInput}
+                    placeholder='Enter the amount'
+                    keyboardType='numeric'
+                    value={extraAmount}
+                    onChangeText={setExtraAmount}
+                />
 
-                <Text style={styles.heading2}>Collected Amount: </Text>
-                <TextInput style={styles.textInput} placeholder='Enter the amount'></TextInput>
-                <Text style={styles.heading2}>Extra Amount: </Text>
-                <TextInput style={styles.textInput} placeholder='Enter the Tip Amount'></TextInput>
-                <Text style={styles.heading2}>Selected Date:</Text>
-                <Text style={styles.heading3}>Selected Date:</Text>
-                <Text style={styles.heading2}>Paid Month:</Text>
-                <Text style={styles.heading3}>Selected Date:</Text>
+                <TouchableOpacity onPress={() => setOpen(true)}>
+                    <Text style={[styles.heading2, { color: "blue" }]}>Select Date:</Text>
+                </TouchableOpacity>
+                <DatePicker
+                    modal
+                    open={open}
+                    date={date}
+                    mode='date'
+                    onConfirm={(date) => {
+                        setOpen(false);
+                        setDate(date);
+                        setFormattedDate(formatDate(date, { month: 'short', day: '2-digit', year: 'numeric' }));
+                    }}
+                    onCancel={() => setOpen(false)}
+                />
+                <Text style={styles.heading3}>{formattedDate}</Text>
 
-                <View style={{ marginTop: 10 }}>
-                    <View style={styles.button}>
-                        <PrimaryButton onPress={() => { }} text='Save & Print' textcolor='white' color='black' />
-                    </View>
-                    <View style={styles.button}>
-                        <PrimaryButton onPress={() => { }} text='Save' textcolor='white' color='black' />
-                    </View>
+                <TouchableOpacity onPress={() => setPaidOpen(true)}>
+                    <Text style={[styles.heading2, { color: "blue" }]}>Paid Month:</Text>
+                </TouchableOpacity>
+                <DatePicker
+                    modal
+                    open={paid_open}
+                    date={paid_date}
+                    mode='date'
+                    onConfirm={(date) => {
+                        setPaidOpen(false);
+                        setPaidDate(date);
+                        setFormattedPaidMonth(formatDate(date, { month: 'long', year: 'numeric' }));
+                    }}
+                    onCancel={() => setPaidOpen(false)}
+                />
+                <Text style={styles.heading3}>{formattedPaidMonth}</Text>
 
+                <View style={{ marginTop: 20 }}>
+                    <PrimaryButton onPress={handleSave} text='Save' color='black' textcolor='white' />
                 </View>
 
+                <View style={{ marginTop: 10 }}>
+                    <PrimaryButton onPress={handleSave} text='Save & Print' color='black' textcolor='white' />
+                </View>
             </View>
-
-
-
-
-
         </View>
     );
 };
@@ -104,16 +243,15 @@ export default Collections;
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        margin: 25,
-        alignItems: "center",
+        paddingTop: 10,
+        backgroundColor: "white",
+        alignItems: 'center',
     },
     headtext: {
-        fontSize: 25,
-        fontStyle: "normal",
-        fontWeight: "bold",
+        marginVertical: 30,
+        fontSize: 20,
         color: "black",
-        marginTop: 15,
-        marginBottom: 23,
+        fontWeight: "bold",
     },
     dropdown: {
         height: 50,
@@ -132,7 +270,7 @@ const styles = StyleSheet.create({
     },
     selectedTextStyle: {
         color: "black",
-        fontSize: 16,
+        fontSize: 18,
     },
     iconStyle: {
         width: 20,
@@ -141,7 +279,6 @@ const styles = StyleSheet.create({
     inputSearchStyle: {
         height: 40,
         fontSize: 16,
-        color: "black"
     },
     textHead: {
         marginTop: 1,
@@ -171,9 +308,6 @@ const styles = StyleSheet.create({
     heading3: {
         fontSize: 16,
         color: "black",
-    },
-    button: {
-        marginVertical: 10,
+        marginBottom: 5,
     }
-
 });

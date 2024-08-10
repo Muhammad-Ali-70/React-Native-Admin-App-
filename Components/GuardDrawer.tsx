@@ -140,7 +140,7 @@ const GuardDrawer = ({ route, navigation }: GuardDrawerPageProps) => {
       <Drawer.Screen
         name="Collections"
         component={Collections}
-        //initialParams={{ UID_Key }}
+        initialParams={{ UID_Key }}
         options={{
           headerTitle: `Collections`,
           headerTitleStyle: { fontSize: 18 },
