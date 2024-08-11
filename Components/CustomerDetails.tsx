@@ -1,4 +1,4 @@
-import { View, Text, Alert, StyleSheet, SafeAreaView, TouchableOpacity, TextInput } from 'react-native'
+import { View, Text, Alert, StyleSheet, SafeAreaView, TouchableOpacity, TextInput, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import firestore from '@react-native-firebase/firestore';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -25,6 +25,9 @@ const CustomerDetails = ({ route, navigation }: DetailsScreenProps) => {
     const [AgreementAmount, SetAgreementAmount] = useState<string>('');
     const [CustomerPhone, SetCustomerPhone] = useState<string>('');
 
+    const [SalaryData, SetSalaryData] = useState<any[]>([]);
+
+
     const fetchCustomerDetails = async () => {
         try {
             const CustomerDoc = await firestore().collection('Add_Customer_Collection').doc(CustomerID).get();
@@ -47,8 +50,29 @@ const CustomerDetails = ({ route, navigation }: DetailsScreenProps) => {
         }
     };
 
+    const fetchSalaryData = async () => {
+
+        const unsubscribe = firestore()
+            .collection("All_Salaries")
+            .where("CustomerID", '==', CustomerID)
+            .onSnapshot(querySnapshot => {
+                const customData = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                SetSalaryData(customData);
+
+            }, error => {
+                console.log("Firestore error:", error);
+            });
+    };
+
+
+
     useEffect(() => {
         fetchCustomerDetails();
+        fetchSalaryData();
     }, []);
 
     const handleUpdateDetails = async () => {
@@ -231,13 +255,39 @@ const CustomerDetails = ({ route, navigation }: DetailsScreenProps) => {
                             <Text style={styles.dataText}>{CustomerData.CAgreeAmount}</Text>
                         </View>
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10, }}>
                         <View style={styles.dividerLine} />
                         <View>
                             <Text style={styles.dividerHeading}>Salaries</Text>
                         </View>
                         <View style={styles.dividerLine} />
                     </View>
+                    <FlatList
+                        data={SalaryData}
+                        keyExtractor={(item) => item.id}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity onPress={
+                                // () => handleGuardDetails(item.id)
+                                () => { }
+                            }>
+                                <View style={styles.listcontainer}>
+                                    <View style={styles.dataside}>
+                                        <Text style={styles.cardText}>ID :
+                                            <Text style={{ fontWeight: "bold" }}> {item.Customer_PayID}</Text></Text>
+                                        <Text style={styles.cardText}>Paid Month :
+                                            <Text style={{ fontWeight: "bold" }}> {item.Customer_Paid_month}</Text></Text>
+                                        <Text style={styles.cardText}>Amount Paid :
+                                            <Text style={{ fontWeight: "bold" }}> {item.CustomerAmountPaid}</Text></Text>
+                                        <Text style={styles.cardText}>Remaining Amount :
+                                            <Text style={{ fontWeight: "bold" }}> {item.C_RemainingAgreementAmount}</Text></Text>
+                                    </View>
+                                    {/* <View style={styles.IconSide}>
+                                        <Icon name="ellipsis-v" size={40} color="#000000" />
+                                    </View> */}
+                                </View>
+                            </TouchableOpacity>
+                        )}
+                    />
                 </View>
             )}
         </SafeAreaView>
@@ -251,7 +301,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#fff',
+        backgroundColor: '#e9e9e9',
     },
     buttonContainer: {
         flexDirection: "row",
@@ -296,10 +346,10 @@ const styles = StyleSheet.create({
         color: "black",
     },
     dividerHeading: {
-        fontSize: 20,
+        fontSize: 19,
         fontWeight: "bold",
         color: "black",
-        paddingHorizontal: 10
+        paddingHorizontal: 10,
     },
     dividerLine: {
         flex: 1,
@@ -341,5 +391,33 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
+    cardText: {
+        fontSize: 16,
+        color: "black",
+        marginVertical: 3,
+
+    },
+    listcontainer: {
+        backgroundColor: "#ffffff",
+        flex: 1,
+        flexDirection: "row",
+        borderRadius: 8,
+        padding: 10,
+        justifyContent: "space-around",
+        alignItems: "center",
+        paddingLeft: 20,
+        marginBottom: 10,
+    },
+    dataside: {
+        flex: 8,
+
+    },
+    IconSide: {
+        flex: 2,
+        alignItems: "center",
+    },
+    iconStyle: {
+
+    }
 });
 

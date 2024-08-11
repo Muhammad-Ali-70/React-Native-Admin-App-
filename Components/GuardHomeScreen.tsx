@@ -68,13 +68,12 @@ function GuardPage({ route, navigation }: GuardHomeScreenProps) {
           <TouchableOpacity onPress={() => handleGuardDetails(item.id)}>
             <View style={styles.listcontainer}>
               <View style={styles.dataside}>
-                <Text style={[styles.cardText, { fontSize: 16, }]}>ID: {item ? item.id : "Loading"}</Text>
-                <Text style={styles.cardText}>Name: {item ? item.GName : "Loading"}</Text>
-                <Text style={styles.cardText}>Father Name: {item ? item.GFName : "Loading"}</Text>
+                <Text style={styles.cardText}>Guard Name: <Text style={{ fontWeight: "bold" }}>{item.GName}</Text></Text>
+                <Text style={styles.cardText}>Father Name: <Text style={{ fontWeight: "bold" }}>{item.GFName}</Text></Text>
               </View>
               <View style={styles.IconSide}>
-                <Text style={{ fontSize: 15, color: "black", marginBottom: 10, fontWeight: "bold" }}>Assign Status</Text>
-                {item.IsAssigned ? <Icon name="check" size={25} color="#75c675" style={styles.iconStyle} /> : <Icon name="close" size={25} color="#c07e7e" style={styles.iconStyle} />}
+                <Text style={{ fontSize: 15, color: "black", marginBottom: 5, fontWeight: "bold" }}>Assign Status</Text>
+                {item.IsAssigned ? <Icon name="check" size={20} color="#75c675" style={styles.iconStyle} /> : <Icon name="close" size={20} color="#c07e7e" style={styles.iconStyle} />}
               </View>
 
             </View>
@@ -89,7 +88,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     paddingVertical: 8,
     paddingHorizontal: 15,
-    backgroundColor: "#ececec",
+    backgroundColor: "#e9e9e9",
     flex: 1,
   },
   listcontainer: {
@@ -101,27 +100,26 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   cardText: {
-    fontSize: 18,
+    fontSize: 17,
     color: "black",
     marginTop: 7,
 
   },
   dataside: {
-    //backgroundColor: "#ff00e6",
-    flex: 6
+    flex: 6,
+    //backgroundColor: "lightblue"
   },
   IconSide: {
-    // backgroundColor: "#80ff25",
+    //backgroundColor: "#80ff25",
     flex: 3,
-    justifyContent: "center",
     alignItems: "center",
   },
   iconStyle: {
     backgroundColor: "#f5f5f5",
-    padding: 10,
+    padding: 8,
     borderRadius: 50,
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     textAlign: "center"
 
   }

@@ -23,7 +23,6 @@ function LoginScreen({ navigation }: LoginScreenProps) {
             try {
                 const response = await auth().signInWithEmailAndPassword(email, password);
                 console.log("Response from Login Page: ", response.user.uid);
-                Alert.alert("User Logged In");
                 navigation.navigate("GuardDrawer", { UID_Key: response.user.uid });
             } catch (error: any) {
                 switch (error.code) {

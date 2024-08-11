@@ -70,7 +70,7 @@ const GuardDrawer = ({ route, navigation }: GuardDrawerPageProps) => {
       return (
         <DrawerContentScrollView {...props}>
           <DrawerItemList {...props} />
-          <DrawerItem label="Logout" onPress={handleSignOut} style={{ marginTop: "210%" }} />
+          <DrawerItem label="Logout" labelStyle={{ color: "black" }} onPress={handleSignOut} style={{ backgroundColor: "lightgrey", marginTop: "200%", }} />
         </DrawerContentScrollView>
       );
     }}>
@@ -90,9 +90,6 @@ const GuardDrawer = ({ route, navigation }: GuardDrawerPageProps) => {
             <View style={{ flexDirection: 'row' }}>
               <TouchableOpacity onPress={handleAddGuard}>
                 <Icon name="plus-circle" size={30} color="white" style={{ marginRight: 15 }} />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleSignOut}>
-                <Icon name="sign-out" size={30} color="white" style={{ marginRight: 15 }} />
               </TouchableOpacity>
             </View>
           ),
@@ -114,9 +111,6 @@ const GuardDrawer = ({ route, navigation }: GuardDrawerPageProps) => {
             <View style={{ flexDirection: 'row' }}>
               <TouchableOpacity onPress={handleAddCustomer}>
                 <Icon name="plus-circle" size={30} color="white" style={{ marginRight: 15 }} />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleSignOut}>
-                <Icon name="sign-out" size={30} color="white" style={{ marginRight: 15 }} />
               </TouchableOpacity>
             </View>
           ),

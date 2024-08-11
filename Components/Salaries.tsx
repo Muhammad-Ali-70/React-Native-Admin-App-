@@ -21,8 +21,7 @@ const Salaries = ({ route }: SalariesScreenProps) => {
     const [payIdValue, setPayIdValue] = useState(0);
     const [date, setDate] = useState(new Date());
     const [open, setOpen] = useState(false);
-    const [paid_date, setPaidDate] = useState(new Date());
-    const [paid_open, setPaidOpen] = useState(false);
+
     const [value, setValue] = useState<string | null>(null);
     const [isFocus, setIsFocus] = useState(false);
     const [collectedAmount, setCollectedAmount] = useState("");
@@ -40,7 +39,6 @@ const Salaries = ({ route }: SalariesScreenProps) => {
     }, [UID_Key]);
 
     useEffect(() => {
-        // Reset all state variables when the component mounts or UID_Key changes
         resetForm();
     }, [UID_Key]);
 
@@ -100,7 +98,6 @@ const Salaries = ({ route }: SalariesScreenProps) => {
         const updatedTotalAmount = selectedGuardSalaryNum + updatedRemainingAmount;
 
         try {
-
 
             const respose = await firestore().collection('All_Salaries').add({
                 S_Date: formattedDate,
@@ -182,7 +179,7 @@ const Salaries = ({ route }: SalariesScreenProps) => {
                 <Text style={styles.heading2}>Collected Amount:</Text>
                 <TextInput
                     style={styles.textInput}
-                    placeholder='Enter the amount'
+                    placeholder='Enter collected amount'
                     keyboardType='numeric'
                     value={collectedAmount}
                     onChangeText={setCollectedAmount}
@@ -191,7 +188,7 @@ const Salaries = ({ route }: SalariesScreenProps) => {
                 <Text style={styles.heading2}>Extra Amount:</Text>
                 <TextInput
                     style={styles.textInput}
-                    placeholder='Enter the amount'
+                    placeholder='Enter the extra amount'
                     keyboardType='numeric'
                     value={extraAmount}
                     onChangeText={setExtraAmount}
@@ -209,34 +206,18 @@ const Salaries = ({ route }: SalariesScreenProps) => {
                         setOpen(false);
                         setDate(date);
                         setFormattedDate(formatDate(date, { month: 'short', day: '2-digit', year: 'numeric' }));
+                        setFormattedPaidMonth(formatDate(date, { month: 'long', year: 'numeric' }));
                     }}
                     onCancel={() => setOpen(false)}
                 />
                 <Text style={styles.heading3}>{formattedDate}</Text>
 
-                <TouchableOpacity onPress={() => setPaidOpen(true)}>
-                    <Text style={[styles.heading2, { color: "blue" }]}>Paid Month:</Text>
-                </TouchableOpacity>
-                <DatePicker
-                    modal
-                    open={paid_open}
-                    date={paid_date}
-                    mode='date'
-                    onConfirm={(date) => {
-                        setPaidOpen(false);
-                        setPaidDate(date);
-                        setFormattedPaidMonth(formatDate(date, { month: 'long', year: 'numeric' }));
-                    }}
-                    onCancel={() => setPaidOpen(false)}
-                />
+                <Text style={[styles.heading2, { color: "#000000" }]}>Paid Month:</Text>
+
                 <Text style={styles.heading3}>{formattedPaidMonth}</Text>
 
-                <View style={{ marginTop: 20 }}>
+                <View style={{ marginTop: 30 }}>
                     <PrimaryButton onPress={handleSave} text='Save' color='black' textcolor='white' />
-                </View>
-
-                <View style={{ marginTop: 10 }}>
-                    <PrimaryButton onPress={handleSave} text='Save & Print' color='black' textcolor='white' />
                 </View>
             </View>
         </View>

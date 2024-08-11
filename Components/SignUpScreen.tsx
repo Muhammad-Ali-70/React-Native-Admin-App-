@@ -37,11 +37,10 @@ function SignUpScreen({ navigation }: SignUpScreenProps) {
                     })
                     console.log(userDocument);
 
-                    console.log("Doc Created in Firestore!");
+                    console.log("New Signup Successfull");
 
                 }
-                Alert.alert("User Account created !")
-                // passing parameters to the next screen
+                Alert.alert("Success", "User Account Created !")
                 navigation.navigate("Login");
 
 

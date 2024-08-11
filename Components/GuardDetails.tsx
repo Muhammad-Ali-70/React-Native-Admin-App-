@@ -49,7 +49,6 @@ function GuardDetails({ route, navigation }: GuardDetailsProps) {
 
         const unsubscribe = firestore()
             .collection("All_Salaries")
-            .orderBy("Guard_Pay_ID", "asc")
             .where("Gaurd_ID", '==', guardId)
             .onSnapshot(querySnapshot => {
                 const customData = querySnapshot.docs.map(doc => ({
@@ -66,7 +65,10 @@ function GuardDetails({ route, navigation }: GuardDetailsProps) {
 
     useEffect(() => {
         fetchGuardDetails();
+
         fetchSalaryData();
+
+
     }, []);
 
     const handleUpdateDetails = async () => {
@@ -278,9 +280,9 @@ function GuardDetails({ route, navigation }: GuardDetailsProps) {
                                         <Text style={styles.cardText}>Remaining Amount :
                                             <Text style={{ fontWeight: "bold" }}> {item.RemainingAmount}</Text></Text>
                                     </View>
-                                    <View style={styles.IconSide}>
+                                    {/* <View style={styles.IconSide}>
                                         <Icon name="ellipsis-v" size={40} color="#000000" />
-                                    </View>
+                                    </View> */}
                                 </View>
                             </TouchableOpacity>
                         )}
@@ -295,7 +297,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#ededed',
+        backgroundColor: '#e9e9e9',
     },
     buttonContainer: {
         flexDirection: "row",
@@ -340,7 +342,7 @@ const styles = StyleSheet.create({
         color: "black",
     },
     dividerHeading: {
-        fontSize: 20,
+        fontSize: 19,
         fontWeight: "bold",
         color: "black",
         paddingHorizontal: 10
@@ -400,19 +402,17 @@ const styles = StyleSheet.create({
         justifyContent: "space-around",
         alignItems: "center",
         paddingLeft: 20,
+        marginBottom: 10,
     },
     dataside: {
-        // backgroundColor: "lightgreen",
         flex: 8,
 
     },
     IconSide: {
-        // backgroundColor: "lightblue",
         flex: 2,
         alignItems: "center",
     },
     iconStyle: {
-
 
     }
 });

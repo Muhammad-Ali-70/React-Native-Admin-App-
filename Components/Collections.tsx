@@ -12,39 +12,37 @@ type RootStackParamList = {
     Collections: { UID_Key: string };
 }
 
-type CollectionScreenProps = NativeStackScreenProps<RootStackParamList, 'Collections'>;
+type collectionscreenprops = NativeStackScreenProps<RootStackParamList, 'Collections'>;
 
-const Collections = ({ route }: CollectionScreenProps) => {
+const Collections = ({ route }: collectionscreenprops) => {
     const { UID_Key } = route.params;
 
     const Template = "WW-U-";
     const [payIdValue, setPayIdValue] = useState(0);
     const [date, setDate] = useState(new Date());
     const [open, setOpen] = useState(false);
-    const [paid_date, setPaidDate] = useState(new Date());
-    const [paid_open, setPaidOpen] = useState(false);
+
     const [value, setValue] = useState<string | null>(null);
     const [isFocus, setIsFocus] = useState(false);
     const [collectedAmount, setCollectedAmount] = useState("");
     const [extraAmount, setExtraAmount] = useState("");
-    const [SelectedCustomerAgreement, setSelectedCustomerAgreement] = useState<string | null>(null);
-    const [remainingAmount, setRemainingAmount] = useState<string | null>(null);
+    const [SelectedCustomerAgreeAmount, setSelectedCustomerAgreeAmount] = useState<string | null>(null);
+    const [RemainingAgreementAmount, setRemainingAgreementAmount] = useState<string | null>(null);
     const [totalAmountToBePaid, setTotalAmountToBePaid] = useState<string | null>(null);
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
     const [formattedPaidMonth, setFormattedPaidMonth] = useState<string | null>(null);
-    const [guardsData, setGuardsData] = useState<{ label: string, value: string, salary: string, remain_salary: string, Total_Amount: string }[]>([]);
+    const [customerData, setCustomersData] = useState<{ label: string, value: string, agree_amount: string, remain_agreeamount: string, Total_Amount: string }[]>([]);
 
     useEffect(() => {
-        const unsubscribe = fetchGuards();
+        const unsubscribe = fetchCustomers();
         return () => unsubscribe && unsubscribe();
     }, [UID_Key]);
 
     useEffect(() => {
-        // Reset all state variables when the component mounts or UID_Key changes
         resetForm();
     }, [UID_Key]);
 
-    const fetchGuards = () => {
+    const fetchCustomers = () => {
         if (!UID_Key) {
             console.log("UID_KEY is not available");
             return;
@@ -57,11 +55,14 @@ const Collections = ({ route }: CollectionScreenProps) => {
                 const snapdata = querySnapshot.docs.map(doc => ({
                     label: doc.data().CName,
                     value: doc.id,
-                    salary: doc.data().CAgreeAmount,
-                    remain_salary: doc.data().CustomerRemainingAmount,
-                    Total_Amount: doc.data().CustomerAgreementAmount,
+                    agree_amount: doc.data().CAgreeAmount,
+                    remain_agreeamount: doc.data().CustomerRemainingAmount,
+                    Total_Amount: doc.data().CustomerTotalAmount,
                 }));
-                setGuardsData(snapdata);
+
+                console.log("Customer Data Fetched SuccessFully");
+
+                setCustomersData(snapdata);
             }, error => {
                 console.log("Firestore error:", error);
             });
@@ -75,8 +76,8 @@ const Collections = ({ route }: CollectionScreenProps) => {
         setExtraAmount("");
         setFormattedDate(null);
         setFormattedPaidMonth(null);
-        setSelectedCustomerAgreement(null);
-        setRemainingAmount(null);
+        setSelectedCustomerAgreeAmount(null);
+        setRemainingAgreementAmount(null);
         setTotalAmountToBePaid(null);
         setIsFocus(false);
     };
@@ -88,32 +89,36 @@ const Collections = ({ route }: CollectionScreenProps) => {
         }
 
         const collectedAmountNum = Number(collectedAmount);
-        const remainingAmountNum = Number(remainingAmount);
-        const SelectedCustomerAgreementNum = Number(SelectedCustomerAgreement);
+        const RemainingAgreementAmountNum = Number(RemainingAgreementAmount);
+        const SelectedCustomerAgreeAmountNum = Number(SelectedCustomerAgreeAmount);
 
-        if (isNaN(collectedAmountNum) || isNaN(remainingAmountNum) || isNaN(SelectedCustomerAgreementNum)) {
+        if (isNaN(collectedAmountNum) || isNaN(RemainingAgreementAmountNum) || isNaN(SelectedCustomerAgreeAmountNum)) {
             Alert.alert("Please enter valid numeric values.");
             return;
         }
 
-        const updatedRemainingAmount = remainingAmountNum - collectedAmountNum;
-        const updatedTotalAmount = SelectedCustomerAgreementNum + updatedRemainingAmount;
+        const updatedRemainingAgreementAmount = RemainingAgreementAmountNum - collectedAmountNum;
+        const updatedTotalAmount = SelectedCustomerAgreeAmountNum + updatedRemainingAgreementAmount;
 
         try {
-            await firestore().collection("Add_Customer_Collection").doc(value).update({
-                CustomerRemainingAmount: updatedRemainingAmount.toString(),
-                CustomerTotalAmount: updatedTotalAmount.toString()
+
+            const respose = await firestore().collection('All_Salaries').add({
+                C_Date: formattedDate,
+                C_ExtraAmount: extraAmount,
+                CustomerName: customerData.find(g => g.value === value)?.label || '',
+                CustomerID: value,
+                Customer_PayID: Template + String(payIdValue).padStart(4, '0'),
+                Customer_AgreeAount: SelectedCustomerAgreeAmount,
+                Customer_Paid_month: formattedPaidMonth,
+                Customer_total_amount: updatedTotalAmount.toString(),
+                CustomerAmountPaid: collectedAmountNum.toString(),
+                C_RemainingAgreementAmount: updatedRemainingAgreementAmount.toString(),
             });
 
-            await firestore().collection('All_Salaries').add({
-                C_Date: formattedDate,
-                Extra_Amount: extraAmount,
-                CustomerName: guardsData.find(g => g.value === value)?.label || '',
-                Customer_ID: value,
-                Customer_Pay_ID: Template + String(payIdValue).padStart(4, '0'),
-                Customer_AgreementAmount: SelectedCustomerAgreement,
-                Customer_Paid_Month: formattedPaidMonth,
-                Customer_TotalAmount: updatedTotalAmount.toString(),
+            await firestore().collection("Add_Customer_Collection").doc(value).update({
+                CustomerRemainingAmount: updatedRemainingAgreementAmount.toString(),
+                CustomerTotalAmount: updatedTotalAmount.toString(),
+                Salaries_IDs: firestore.FieldValue.arrayUnion(respose._documentPath._parts[1]),
             });
 
             setPayIdValue(prevValue => prevValue + 1);
@@ -133,7 +138,7 @@ const Collections = ({ route }: CollectionScreenProps) => {
 
     return (
         <View style={styles.mainContainer}>
-            <Text style={styles.headtext}>Summary</Text>
+            <Text style={styles.headtext}>Customer Summary</Text>
 
             <Dropdown
                 style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
@@ -141,22 +146,22 @@ const Collections = ({ route }: CollectionScreenProps) => {
                 selectedTextStyle={styles.selectedTextStyle}
                 inputSearchStyle={styles.inputSearchStyle}
                 iconStyle={styles.iconStyle}
-                data={guardsData}
+                data={customerData}
                 search
                 maxHeight={300}
                 labelField="label"
                 valueField="value"
-                placeholder={!isFocus ? 'Select guard' : '...'}
-                searchPlaceholder="Search guard..."
+                placeholder={!isFocus ? 'Select Customer' : '...'}
+                searchPlaceholder="Search Customer..."
                 activeColor='#e6e5e5'
                 value={value}
                 onFocus={() => setIsFocus(true)}
                 onBlur={() => setIsFocus(false)}
                 onChange={item => {
                     setValue(item.value);
-                    setSelectedCustomerAgreement(item.salary);
-                    setRemainingAmount(item.remain_salary);
-                    setTotalAmountToBePaid((Number(item.salary) + Number(item.remain_salary)).toString());
+                    setSelectedCustomerAgreeAmount(item.agree_amount);
+                    setRemainingAgreementAmount(item.remain_agreeamount);
+                    setTotalAmountToBePaid((Number(item.agree_amount) + Number(item.remain_agreeamount)).toString());
                     setIsFocus(false);
                 }}
                 renderLeftIcon={() => (
@@ -170,14 +175,14 @@ const Collections = ({ route }: CollectionScreenProps) => {
             />
 
             <View style={styles.amountContainer}>
-                <Text style={styles.textHead}>Salary: <Text style={{ color: "red" }}>{SelectedCustomerAgreement || 'N/A'}</Text></Text>
-                <Text style={styles.textHead}>Remaining Amount: <Text style={{ color: "red" }}>{remainingAmount || 'N/A'}</Text></Text>
+                <Text style={styles.textHead}>agree_amount: <Text style={{ color: "red" }}>{SelectedCustomerAgreeAmount || 'N/A'}</Text></Text>
+                <Text style={styles.textHead}>Remaining Amount: <Text style={{ color: "red" }}>{RemainingAgreementAmount || 'N/A'}</Text></Text>
                 <Text style={styles.textHead}>Total Amount to be paid: <Text style={{ color: "red" }}>{totalAmountToBePaid || 'N/A'}</Text></Text>
 
                 <Text style={styles.heading2}>Collected Amount:</Text>
                 <TextInput
                     style={styles.textInput}
-                    placeholder='Enter the amount'
+                    placeholder='Enter collected amount'
                     keyboardType='numeric'
                     value={collectedAmount}
                     onChangeText={setCollectedAmount}
@@ -186,7 +191,7 @@ const Collections = ({ route }: CollectionScreenProps) => {
                 <Text style={styles.heading2}>Extra Amount:</Text>
                 <TextInput
                     style={styles.textInput}
-                    placeholder='Enter the amount'
+                    placeholder='Enter the extra amount'
                     keyboardType='numeric'
                     value={extraAmount}
                     onChangeText={setExtraAmount}
@@ -204,34 +209,18 @@ const Collections = ({ route }: CollectionScreenProps) => {
                         setOpen(false);
                         setDate(date);
                         setFormattedDate(formatDate(date, { month: 'short', day: '2-digit', year: 'numeric' }));
+                        setFormattedPaidMonth(formatDate(date, { month: 'long', year: 'numeric' }));
                     }}
                     onCancel={() => setOpen(false)}
                 />
                 <Text style={styles.heading3}>{formattedDate}</Text>
 
-                <TouchableOpacity onPress={() => setPaidOpen(true)}>
-                    <Text style={[styles.heading2, { color: "blue" }]}>Paid Month:</Text>
-                </TouchableOpacity>
-                <DatePicker
-                    modal
-                    open={paid_open}
-                    date={paid_date}
-                    mode='date'
-                    onConfirm={(date) => {
-                        setPaidOpen(false);
-                        setPaidDate(date);
-                        setFormattedPaidMonth(formatDate(date, { month: 'long', year: 'numeric' }));
-                    }}
-                    onCancel={() => setPaidOpen(false)}
-                />
+                <Text style={[styles.heading2, { color: "#000000" }]}>Paid Month:</Text>
+
                 <Text style={styles.heading3}>{formattedPaidMonth}</Text>
 
-                <View style={{ marginTop: 20 }}>
+                <View style={{ marginTop: 30 }}>
                     <PrimaryButton onPress={handleSave} text='Save' color='black' textcolor='white' />
-                </View>
-
-                <View style={{ marginTop: 10 }}>
-                    <PrimaryButton onPress={handleSave} text='Save & Print' color='black' textcolor='white' />
                 </View>
             </View>
         </View>
