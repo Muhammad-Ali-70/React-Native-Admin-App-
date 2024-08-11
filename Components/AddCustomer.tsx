@@ -47,7 +47,7 @@ const AddCustomer = ({ route, navigation }: AddCustomerScreenProps) => {
                 CustomerRemainingAmount: CustomerAgreementAmount,
                 CustomerTotalAmount: CustomerAgreementAmount,
             })
-            Alert.alert("Successfull", "Customer has been added to the Database!");
+            Alert.alert("Successfull", "New Customer has been added");
 
             SetCustomerName("");
             SetCustomerFatherName("");
