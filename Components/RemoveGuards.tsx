@@ -97,12 +97,6 @@ const RemoveGuards = ({ route, navigation }: RemoveGuardsNativeScreenProps) => {
 
     return (
         <View style={styles.mainContainer}>
-            <Text>
-                UID is: {UID_Key}
-            </Text>
-            <Text>
-                Customer ID is: {CUS_ID}
-            </Text>
             <FlatList
                 data={GuardsData}
                 keyExtractor={(item) => item.id}

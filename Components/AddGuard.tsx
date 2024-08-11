@@ -111,6 +111,7 @@ const AddGuard = ({ route, navigation }: AddGuardPageProps) => {
                     style={styles.textInputfeild}
                     placeholder="CNIC"
                     onFocus={() => setFocusedField('vcard')}
+                    keyboardType='numeric'
                     onBlur={() => setFocusedField(null)}
                     onChangeText={(value) => { SetCNIC(value) }} value={CNIC}
                 />
@@ -135,6 +136,7 @@ const AddGuard = ({ route, navigation }: AddGuardPageProps) => {
                 </View>
                 <TextInput
                     style={styles.textInputfeild}
+                    keyboardType='numeric'
                     placeholder="Salary (PKR)"
                     onFocus={() => setFocusedField('salary')}
                     onBlur={() => setFocusedField(null)}
@@ -148,6 +150,7 @@ const AddGuard = ({ route, navigation }: AddGuardPageProps) => {
                 </View>
                 <TextInput
                     style={styles.textInputfeild}
+                    keyboardType='numeric'
                     placeholder="Phone No."
                     onFocus={() => setFocusedField('phone')}
                     onBlur={() => setFocusedField(null)}

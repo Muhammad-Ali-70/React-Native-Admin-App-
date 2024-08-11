@@ -100,6 +100,7 @@ const AddCustomer = ({ route, navigation }: AddCustomerScreenProps) => {
                 <TextInput
                     style={styles.textInputfeild}
                     placeholder="CNIC"
+                    keyboardType='numeric'
                     onFocus={() => setFocusedField('vcard')}
                     onBlur={() => setFocusedField(null)}
                     onChangeText={(value) => { SetCustomerCNIC(value) }} value={CustomerCNIC}
@@ -126,6 +127,7 @@ const AddCustomer = ({ route, navigation }: AddCustomerScreenProps) => {
                 <TextInput
                     style={styles.textInputfeild}
                     placeholder="Aggreement Amount"
+                    keyboardType='numeric'
                     onFocus={() => setFocusedField('salary')}
                     onBlur={() => setFocusedField(null)}
                     onChangeText={(value) => { SetCustomerAgreementAmount(value) }} value={CustomerAgreementAmount}
@@ -138,6 +140,7 @@ const AddCustomer = ({ route, navigation }: AddCustomerScreenProps) => {
                 </View>
                 <TextInput
                     style={styles.textInputfeild}
+                    keyboardType='numeric'
                     placeholder="Phone No."
                     onFocus={() => setFocusedField('phone')}
                     onBlur={() => setFocusedField(null)}
